@@ -33,6 +33,9 @@ public class Customer {
     @Column(name = "email", columnDefinition = "VARCHAR(100)")
     private String email;
 
+    @Column(name = "password", length = 255, nullable = false)
+    private String password;
+
     @Column(name = "current_points")
     private int currentPoints = 0;
 
