@@ -9,9 +9,4 @@ public class RegisterRequest {
     private String phoneNumber;
     private String password;
 
-    private String licensePlate;
-    private String vehicleType;
-    private String brand;
-    private String color;
-
 }
