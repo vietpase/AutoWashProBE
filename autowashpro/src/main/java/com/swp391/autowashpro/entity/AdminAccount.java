@@ -20,7 +20,7 @@ public class AdminAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int adminId;
 
-    @Column(name = "full_name", length = 100, nullable = false)
+    @Column(name = "full_name", columnDefinition = "NVARCHAR(100)", nullable = false)
     private String fullName;
 
     @Column(name = "username", columnDefinition = "VARCHAR(50)", unique = true, nullable = false)
