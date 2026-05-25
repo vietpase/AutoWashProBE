@@ -1,6 +1,8 @@
 package com.swp391.autowashpro.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,6 +19,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Setter
 @Getter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})//Clear Hibernate Proxy junk files
 public class Customer {
 
     @Id
@@ -34,6 +37,7 @@ public class Customer {
     private String email;
 
     @Column(name = "password", length = 255, nullable = false)
+    @JsonIgnore //Jackson will ignore this field when converting to JSON.
     private String password;
 
     @Column(name = "current_points")
