@@ -24,7 +24,7 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int customerId;
 
-    @Column(name = "full_name", length = 100, nullable = false)
+    @Column(name = "full_name", columnDefinition = "NVARCHAR(100)", nullable = false)
     private String fullName;
 
     @Column(name = "phone_number", columnDefinition = "VARCHAR(15)", unique = true, nullable = false)
