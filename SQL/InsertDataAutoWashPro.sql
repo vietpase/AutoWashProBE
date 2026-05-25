@@ -17,11 +17,11 @@
 	--('Platinum', 10000000,  40, 14, 2.0, 4);
 
 	-- 3. Perks
-	INSERT INTO [dbo].[perk] (perk_name, discount_percent, free_service, add_on_item)
-	VALUES 
-	(N'Giảm giá 5%', 5, NULL, NULL),
-	(N'Sáp miễn phí', 0, N'Sáp bóng', NULL),
-	(N'Tặng vệ sinh nội thất', 0, NULL, N'Vệ sinh nội thất');
+	--INSERT INTO [dbo].[perk] (perk_name, discount_percent, free_service, add_on_item)
+	--VALUES 
+	--(N'Giảm giá 5%', 5, NULL, NULL),
+	--(N'Sáp miễn phí', 0, N'Sáp bóng', NULL),
+	--(N'Tặng vệ sinh nội thất', 0, NULL, N'Vệ sinh nội thất');
 	
 	-- Gán perks cho tier
 	-- Silver: Giảm 5%
@@ -62,14 +62,14 @@
 	--(2, 2, -50, 'Redeem', NULL);
 
 	-- 9. Khuyến mãi (admin tạo)
-	INSERT INTO [dbo].[promotion] (title, description, min_tier_id, discount_percent, start_date, end_date, status, created_by_admin_id)
-	VALUES (N'Ưu đãi tháng 5', N'Giảm 10% cho khách Silver trở lên', 2, 10, '2026-05-01', '2026-05-31', 'Active', 1);
+	--INSERT INTO [dbo].[promotion] (title, description, min_tier_id, discount_percent, start_date, end_date, status, created_by_admin_id)
+	--VALUES (N'Ưu đãi tháng 5', N'Giảm 10% cho khách Silver trở lên', 2, 10, '2026-05-01', '2026-05-31', 'Active', 1);
 
 	-- 10. Danh mục đổi điểm (admin tạo)
-	INSERT INTO [dbo].[reward_catalog](reward_name, points_required, discount_amount, free_wash, created_by_admin_id)
-	VALUES 
-	(N'Giảm 10.000đ', 100, 10000, 0, 1),
-	(N'Rửa xe miễn phí', 300, 0, 1, 1);
+	--INSERT INTO [dbo].[reward_catalog](reward_name, points_required, discount_amount, free_wash, created_by_admin_id)
+	--VALUES 
+	--(N'Giảm 10.000đ', 100, 10000, 0, 1),
+	--(N'Rửa xe miễn phí', 300, 0, 1, 1);
 
 	-- 11. Lịch sử đổi điểm
 	--INSERT INTO [dbo].[reward_redemption](customer_id, reward_id, points_used)
@@ -98,7 +98,8 @@
 
 	--DELETE FROM [dbo].[customer]
 	--WHERE customer_id IN (3,4,5,6);
-
+	--DELETE FROM [dbo].[vehicle]
+	--WHERE vehicle_id IN (1,4,5,6);
 	
 
 		
@@ -111,19 +112,21 @@
   --"loginKey": "0123456888",
   --"password": "tuan9"
 --}
-
-
+--{
+  --"phoneNumber": "0123456999",
+  --"password": "levana123",
+--}
 
 --INSERT INTO [dbo].[admin_account] (full_name, password, role, username)
 --VALUES 
 --(
-  --  N'Quản trị viên chính', 
+  --N'Quản trị viên chính', 
     --'$2a$12$d6cQeET10X95jiZAPxSFVOY/bQrBYQSfysPwshECiwBfWRufTMQfq', -- Mật khẩu gốc là 123456
     --'Manager', 
     --'admin'
 --),
 --(
-  --  N'Nhân viên CSKH', 
+    --N'Nhân viên CSKH', 
     --'$2a$12$gm0hSj8wYkeeWto.heqOu.Rdsyippz2Vncc0vG67YKe2FIRxpsO0m', -- Mật khẩu gốc là 123456
     --'Staff', 
     --'staff1'

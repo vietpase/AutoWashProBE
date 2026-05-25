@@ -2,9 +2,9 @@ package com.swp391.autowashpro.service;
 
 import com.swp391.autowashpro.dto.*;
 import com.swp391.autowashpro.entity.Customer;
-import com.swp391.autowashpro.resporitory.AdminAccountResporitory;
-import com.swp391.autowashpro.resporitory.CustomerResporitory;
-import com.swp391.autowashpro.resporitory.LoyaltyTierResporitory;
+import com.swp391.autowashpro.repository.AdminAccountRepository;
+import com.swp391.autowashpro.repository.CustomerRepository;
+import com.swp391.autowashpro.repository.LoyaltyTierRepository;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,29 +18,29 @@ import java.util.Random;
 @Service
 public class AuthService {
 
-    private final CustomerResporitory customerResporitory;
+    private final CustomerRepository customerRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final AdminAccountResporitory adminAccountResporitory;
-    private final LoyaltyTierResporitory loyaltyTierResporitory;
+    private final AdminAccountRepository adminAccountRepository;
+    private final LoyaltyTierRepository loyaltyTierRepository;
     private JavaMailSender javaMailSender;
 
     //Record OTP(Key: Email, Value: OTP)
     private final Map<String,String>otpStorage=new HashMap<>();
 
-    public AuthService(CustomerResporitory customerResporitory, BCryptPasswordEncoder passwordEncoder,
-                       AdminAccountResporitory adminAccountResporitory, LoyaltyTierResporitory loyaltyTierResporitory,
+    public AuthService(CustomerRepository customerRepository, BCryptPasswordEncoder passwordEncoder,
+                       AdminAccountRepository adminAccountRepository, LoyaltyTierRepository loyaltyTierRepository,
                        JavaMailSender javaMailSender){
-        this.customerResporitory = customerResporitory;
+        this.customerRepository = customerRepository;
         this.passwordEncoder = passwordEncoder;
-        this.adminAccountResporitory= adminAccountResporitory;
-        this.loyaltyTierResporitory = loyaltyTierResporitory;
+        this.adminAccountRepository = adminAccountRepository;
+        this.loyaltyTierRepository = loyaltyTierRepository;
         this.javaMailSender=javaMailSender;
 
     }
 
 //    Register Customer
     public Customer registerCustomer(RegisterRequest request){
-        if(customerResporitory.findByPhoneNumber(request.getPhoneNumber()).isPresent()){
+        if(customerRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()){
             throw new RuntimeException("This phone number is already logged in the system!");
         }
 
@@ -50,13 +50,13 @@ public class AuthService {
         customer.setPhoneNumber(request.getPhoneNumber());
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        return customerResporitory.save(customer);
+        return customerRepository.save(customer);
     }
 
 //Login
     public AuthResponse login(LoginRequest request){
 //        TH1: Check admin
-        var adminOpt = adminAccountResporitory.findByUsername((request.getLoginKey()));
+        var adminOpt = adminAccountRepository.findByUsername((request.getLoginKey()));
         if(adminOpt.isPresent()){
             var admin =adminOpt.get();
             if(!passwordEncoder.matches(request.getPassword(), admin.getPassword())){
@@ -68,7 +68,7 @@ public class AuthService {
         }
 
 //        TH2: Check customer
-        var customerOpt = customerResporitory.findByPhoneNumber(request.getLoginKey());
+        var customerOpt = customerRepository.findByPhoneNumber(request.getLoginKey());
         if(customerOpt.isPresent()){
             var customer = customerOpt.get();
             if(!passwordEncoder.matches(request.getPassword(), customer.getPassword())){
@@ -86,7 +86,7 @@ public class AuthService {
 
 //Create and Send OTP through Email
     public String generateAndCreateOtp(ForgotPasswordRequest request){
-        Optional<Customer> customerOpt = customerResporitory.findByEmail(request.getEmail());
+        Optional<Customer> customerOpt = customerRepository.findByEmail(request.getEmail());
         if(customerOpt.isEmpty()){
             throw new RuntimeException("The email address does not exist in the system!");
         }
@@ -112,11 +112,11 @@ public class AuthService {
         if(storedOtp == null || !storedOtp.equals(request.getOtp())){
             throw new RuntimeException("The OTP code is incorrect or has expired!");
         }
-        Customer customer = customerResporitory.findByEmail(request.getEmail())
+        Customer customer = customerRepository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new RuntimeException("Error: User not found!"));
 
         customer.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        customerResporitory.save(customer);
+        customerRepository.save(customer);
         otpStorage.remove(request.getEmail());
         return"Password changed successfully! You can now log in with your new password.";
     }
