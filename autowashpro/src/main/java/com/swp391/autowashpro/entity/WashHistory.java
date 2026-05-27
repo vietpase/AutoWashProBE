@@ -34,9 +34,6 @@ public class WashHistory {
     @Column(name = "points_used")
     private Integer pointsUsed = 0;
 
-    @Column(name = "perk_applied", length = 200)
-    private String perkApplied;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id", nullable = false, unique = true)
     private Booking booking;

@@ -38,6 +38,9 @@ public class LoyaltyTier {
     @Column(name = "priority_level", nullable = false)
     private Integer priorityLevel;
 
+    @Column(name = "discount_percent")
+    private Integer discountPercent = 0;
+
     public LoyaltyTier(int tierID){
         this.tierId = tierID;
     }
