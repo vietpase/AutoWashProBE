@@ -18,7 +18,7 @@ public class RewardCatalog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "reward_id")
-    private int rewardId;
+    private Integer rewardId;
 
     @Column(name = "reward_name", nullable = false, length = 100)
     private String rewardName;

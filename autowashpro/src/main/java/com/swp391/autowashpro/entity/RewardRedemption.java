@@ -19,7 +19,7 @@ public class RewardRedemption {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "redemption_id")
-    private int redemptionId;
+    private Integer redemptionId;
 
     @Column(name = "points_used",nullable = false)
     private Integer pointsUsed;

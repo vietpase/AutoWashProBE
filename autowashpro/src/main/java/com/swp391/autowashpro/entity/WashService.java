@@ -18,13 +18,13 @@ public class WashService {
     @Id
     @Column(name = "service_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int serviceId;
+    private Integer serviceId;
 
     @Column(name = "service_name", columnDefinition = "NVARCHAR(100)", nullable = false)
     private String serviceName;
 
-    @Column(name = "service_type", length = 100, nullable = false)
-    private String serviceType; // Car or Motorbike
+    @Column(name = "description", columnDefinition = "NVARCHAR(500)", nullable = false)
+    private String description;
 
     @Column(name = "price", nullable = false, precision = 18, scale = 2)
     private BigDecimal price;

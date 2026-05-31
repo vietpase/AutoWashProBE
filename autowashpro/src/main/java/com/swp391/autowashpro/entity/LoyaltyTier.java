@@ -18,7 +18,7 @@ public class LoyaltyTier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "tier_id")
-    private int tierId;
+    private Integer tierId;
 
     @Column(name = "tier_name",length = 50,nullable = false)
     private String tierName;
