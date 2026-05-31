@@ -26,7 +26,7 @@ public class CustomerMonthlyStats {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "stats_id")
-    private int statsId;
+    private Integer statsId;
 
     @Column(name = "year_month", columnDefinition = "CHAR(6)", nullable = false)
     private String yearMonth; //Format YYYYMM

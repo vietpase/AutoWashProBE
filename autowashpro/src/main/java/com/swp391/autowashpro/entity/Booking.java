@@ -22,7 +22,7 @@ public class Booking {
     @Id
     @Column(name = "booking_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int bookingId;
+    private Integer bookingId;
 
     @Column(name = "booking_date",nullable = false)
     private LocalDate bookingDate;
@@ -65,4 +65,8 @@ public class Booking {
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RewardRedemption> rewardRedemptions;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_admin_id", referencedColumnName = "admin_id")
+    private AdminAccount createdByAdmin;
 }

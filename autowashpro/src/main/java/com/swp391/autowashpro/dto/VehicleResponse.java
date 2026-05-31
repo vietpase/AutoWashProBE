@@ -10,12 +10,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class VehicleResponse {
-    private int vehicleId;
+    private Integer vehicleId;
     private String licensePlate;
     private String vehicleType;
     private String brand;
     private String color;
-    private int customerId;
 
     public VehicleResponse(Vehicle vehicle){
         this.vehicleId=vehicle.getVehicleId();
@@ -23,7 +22,6 @@ public class VehicleResponse {
         this.vehicleType = vehicle.getVehicleType();
         this.brand = vehicle.getBrand();
         this.color = vehicle.getColor();
-        this.customerId = vehicle.getCustomer().getCustomerId();
     }
 
 }

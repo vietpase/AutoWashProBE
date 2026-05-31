@@ -10,7 +10,7 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customeOpenAPI(){
         Info info = new Info().title("AutoWashPRo")
-                .description("AutoWash Pro – An intelligent automated car, bike" +
+                .description("AutoWash Pro – An intelligent automated car" +
                         " wash management system with scheduling and loyalty programs.");
 
         return new OpenAPI().info(info);

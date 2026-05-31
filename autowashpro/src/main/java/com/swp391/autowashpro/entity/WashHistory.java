@@ -20,7 +20,7 @@ public class WashHistory {
     @Id
     @Column(name = "wash_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int washId;
+    private Integer washId;
 
     @Column(name = "wash_date")
     private LocalDateTime washDate;

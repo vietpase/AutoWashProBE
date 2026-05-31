@@ -20,7 +20,7 @@
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "point_id")
-        private int pointId;
+        private Integer pointId;
 
         @Column(name = "points_change", nullable = false)
         private Integer pointsChange;

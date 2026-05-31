@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class AuthResponse {
-    private int id;
+    private Integer id;
     private String loginKey;
     private String fullName;
     private String roleName;

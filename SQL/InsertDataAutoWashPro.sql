@@ -86,11 +86,9 @@
 	--select * from [dbo].[customer_monthly_stats]
 	--select * from [dbo].[loyalty_point]
 	--select * from [dbo].[loyalty_tier] -- data inserted
-	--select * from [dbo].[perk] --error data
 	--select * from [dbo].[promotion]
 	--select * from [dbo].[reward_catalog]
 	--select * from [dbo].[reward_redemption]
-	--select * from [dbo].[tier_perk] -- error data
 	--select * from [dbo].[vehicle]
 	--select * from [dbo].[wash_history]
 
