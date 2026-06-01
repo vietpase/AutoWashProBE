@@ -1,21 +1,21 @@
 package com.swp391.autowashpro.dto;
 
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
+@Getter
+@Setter
 public class PromotionRequest {
-    @NotBlank(message = "Promo code cannot be blank")
-    private String promoCode;
+    @NotBlank(message = "Promo name cannot be blank")
+    private String promoName;
 
     @NotBlank(message = "Description cannot be blank")
     private String description;
 
     @NotNull(message = "Discount amount cannot be null")
-    @Positive(message = "Discount amount must be greater than 0")
     private Double discountAmount;
 
     @NotNull(message = "Start date cannot be null")
@@ -25,5 +25,8 @@ public class PromotionRequest {
     @NotNull(message = "End date cannot be null")
     private LocalDate endDate;
 
+    private String status;
+
+    @Min(value = 0, message = "Minimum priority level cannot be negative")
     private Integer minTierId;
 }
