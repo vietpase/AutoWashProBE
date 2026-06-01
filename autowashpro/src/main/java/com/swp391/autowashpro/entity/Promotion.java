@@ -17,17 +17,17 @@ import java.time.LocalDate;
 public class Promotion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "promotion_id")
-    private Integer promotionId;
+    @Column(name = "promo_id")
+    private Integer promoId;
 
-    @Column(name = "title", length = 100,nullable = false)
-    private String title;
+    @Column(name = "promo_name", columnDefinition = "NVARCHAR(100)",nullable = false)
+    private String promoName;
 
-    @Column(name = "description", length = 255)
+    @Column(name = "description", columnDefinition = "NVARCHAR(500)")
     private String description;
 
-    @Column(name = "discount_percent")
-    private Double discountPercent = 0.0;
+    @Column(name = "discount_amount")
+    private Double discountAmount = 0.0;
 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
@@ -42,7 +42,4 @@ public class Promotion {
     @JoinColumn(name = "min_tier_id")
     private LoyaltyTier loyaltyTier;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by_admin_id")
-    private AdminAccount createdByAdminAccount;
 }
