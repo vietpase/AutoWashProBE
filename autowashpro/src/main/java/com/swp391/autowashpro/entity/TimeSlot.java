@@ -20,7 +20,7 @@ public class TimeSlot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer slotId;
 
-    @Column(name = "slot_name",nullable = false)
+    @Column(name = "slot_name",nullable = false, columnDefinition = "NVARCHAR(255)")
     private String slotName;
 
     @Column(name = "start_time",nullable = false)
@@ -30,7 +30,7 @@ public class TimeSlot {
     private LocalTime endTime;
 
     @Column(name = "max_capacity", nullable = false)
-    private int maxCapacity;
+    private Integer maxCapacity;
 
     @Column(name = "is_active",nullable = false)
     private Boolean isActive=true;

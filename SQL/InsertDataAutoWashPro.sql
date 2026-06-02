@@ -139,3 +139,4 @@
 --password: tester123
 
 
+--create database AutoWashPro
