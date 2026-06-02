@@ -23,4 +23,6 @@ public class TimeSlotRequest {
     @NotNull(message = "Max capacity cannot be null")
     @Min(value = 1, message = "Max capacity must be at least 1 car per slot")
     private Integer maxCapacity;
+
+    private boolean isActive;
 }
