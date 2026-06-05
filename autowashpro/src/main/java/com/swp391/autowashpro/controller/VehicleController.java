@@ -4,6 +4,9 @@ import com.swp391.autowashpro.dto.VehicleRequest;
 import com.swp391.autowashpro.dto.VehicleResponse;
 import com.swp391.autowashpro.service.VehicleService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/vehicles")
 @CrossOrigin("*")
+@Tag(name = "Vehicle Portfolio Management", description = "APIs for tracking and managing user garage assets, license plates, and vehicle classification metadata")
 public class VehicleController {
 
     private final VehicleService vehicleService;
@@ -20,10 +24,12 @@ public class VehicleController {
         this.vehicleService = vehicleService;
     }
 
-    // Retrieve a list of vehicles belonging to a specific customer
     @GetMapping("/customer")
-    @Operation(summary = "Get customer vehicle list")
-    public ResponseEntity<?> getMyVehicle(@RequestParam int customerId) {
+    @Operation(
+            summary = "Get customer vehicle list",
+            description = "Returns a complete collection of all registered cars/motorbikes assigned to a specific customer's garage portfolio."
+    )
+    public ResponseEntity<?> getMyVehicle(@RequestParam Integer customerId) {
         try {
             List<VehicleResponse> vehicles = vehicleService.getMyVehicles(customerId);
             return ResponseEntity.ok(vehicles);
@@ -32,37 +38,44 @@ public class VehicleController {
         }
     }
 
-    // Add a new vehicle to the system
     @PostMapping
-    @Operation(summary = "Add a new Vehicle")
-    public ResponseEntity<?> addVehicle(@RequestBody VehicleRequest request) {
+    @Operation(
+            summary = "Add a new vehicle",
+            description = "Attaches a new vehicle asset (plate number, type, brand) directly into the owning customer's active account portfolio."
+    )
+    public ResponseEntity<?> addVehicle(@Valid @RequestBody VehicleRequest request) {
         try {
             VehicleResponse savedVehicle = vehicleService.addVehicle(request);
-            return ResponseEntity.ok(savedVehicle);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedVehicle); // Chuẩn hóa thành 201 Created
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // Update existing vehicle details by its ID
     @PutMapping("/{id}")
-    @Operation(summary = "Update vehicle by ID")
-    public ResponseEntity<?> updateVehicle(@PathVariable("id") Integer vehicleId, @RequestBody VehicleRequest request) {
+    @Operation(
+            summary = "Update vehicle by ID",
+            description = "Modifies the structural properties, registration plates, or type classification info of an existing target vehicle asset."
+    )
+    public ResponseEntity<?> updateVehicle(@PathVariable("id") Integer id, @Valid @RequestBody VehicleRequest request) {
         try {
-            VehicleResponse vehicleResponse = vehicleService.updateVehicle(vehicleId, request);
+            // Sửa tên biến PathVariable từ vehicleId -> id cho đồng bộ tuyệt đối với biểu thức đường dẫn /{id}
+            VehicleResponse vehicleResponse = vehicleService.updateVehicle(id, request);
             return ResponseEntity.ok(vehicleResponse);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // Delete a specific vehicle from the system by its ID
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete Vehicle by ID")
-    public ResponseEntity<?> deleteVehicle(@PathVariable("id") int vehicleId) {
+    @Operation(
+            summary = "Delete vehicle by ID",
+            description = "Decommissions a customer's vehicle asset from the system view. Historical dependent order logs may lock this operation from physical hard deletion."
+    )
+    public ResponseEntity<?> deleteVehicle(@PathVariable("id") Integer id) {
         try {
-            vehicleService.deleteVehicle(vehicleId);
-            return ResponseEntity.ok("Vehicle deleted successfully with ID: " + vehicleId);
+            vehicleService.deleteVehicle(id);
+            return ResponseEntity.ok("Vehicle deleted successfully with ID: " + id);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
