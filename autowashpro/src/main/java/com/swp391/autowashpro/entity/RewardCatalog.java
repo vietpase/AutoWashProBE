@@ -20,8 +20,11 @@ public class RewardCatalog {
     @Column(name = "reward_id")
     private Integer rewardId;
 
-    @Column(name = "reward_name", nullable = false, length = 100)
+    @Column(name = "reward_name", nullable = false, columnDefinition = "NVARCHAR(100)")
     private String rewardName;
+
+    @Column(name = "description", columnDefinition = "NVARCHAR(500)")
+    private String description;
 
     @Column(name = "points_required", nullable = false)
     private Integer pointsRequired;
@@ -29,14 +32,7 @@ public class RewardCatalog {
     @Column(name = "discount_amount", precision = 18,scale = 2)
     private BigDecimal discountAmount = BigDecimal.ZERO;
 
-    @Column(name = "free_wash")
-    private Boolean freeWash = false;
-
     @Column(name = "is_active")
     private Boolean isActive = true;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by_admin_id")
-    private AdminAccount createdByAdmin;
 
 }

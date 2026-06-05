@@ -41,6 +41,9 @@ public class LoyaltyTier {
     @Column(name = "discount_percent")
     private Integer discountPercent = 0;
 
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive=true;
+
     public LoyaltyTier(int tierID){
         this.tierId = tierID;
     }
