@@ -81,15 +81,11 @@ public class TimeSlotService {
     }
 
     @Transactional
-    public void deleteTimeSlot(Integer id){
-        if (!timeSlotRepository.existsById(id)) {
-            throw new RuntimeException("Time slot not found with ID: " + id);
-        }
-        try {
-            timeSlotRepository.deleteById(id);
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot delete this slot because it is already linked to existing customer bookings. Please set 'isActive' to false instead!");
-        }
+    public void deactivateTimeSlot(Integer id){
+        TimeSlot timeSlot =timeSlotRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("Time slot not found with ID: " + id));
+        timeSlot.setIsActive(false);
+        timeSlotRepository.save(timeSlot);
     }
 
 }

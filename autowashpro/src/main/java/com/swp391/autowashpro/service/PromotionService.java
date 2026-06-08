@@ -17,16 +17,21 @@ public class PromotionService {
     private final LoyaltyTierRepository loyaltyTierRepository;
 
     public PromotionService(PromotionRepository promotionRepository, LoyaltyTierRepository loyaltyTierRepository){
-        this.promotionRepository=promotionRepository;
-        this.loyaltyTierRepository=loyaltyTierRepository;
+        this.promotionRepository = promotionRepository;
+        this.loyaltyTierRepository = loyaltyTierRepository;
     }
 
-//  Get all wash services (Admin view - sees everything)
+    // Get all promotions (Admin/Manager view - sees everything)
     public List<PromotionResponse> getAllPromotions(){
         return promotionRepository.findAll().stream().map(PromotionResponse::new).toList();
     }
 
-//  Create a new promotion
+    // Get only active promotions (Customer view)
+    public List<PromotionResponse> getActivePromotions() {
+        return promotionRepository.findByIsActiveTrue().stream().map(PromotionResponse::new).toList();
+    }
+
+    // Create a new promotion
     @Transactional
     public PromotionResponse createPromotion(PromotionRequest request){
         if(promotionRepository.existsByPromoName(request.getPromoName())){
@@ -44,10 +49,11 @@ public class PromotionService {
         promotion.setStartDate(request.getStartDate());
         promotion.setEndDate(request.getEndDate());
 
-        if (request.getStatus() != null && !request.getStatus().isBlank()) {
-            promotion.setStatus(request.getStatus());
+        // Thay đổi mapping status cũ sang isActive
+        if (request.getIsActive() != null) {
+            promotion.setIsActive(request.getIsActive());
         } else {
-            promotion.setStatus("Active");
+            promotion.setIsActive(true);
         }
 
         if (request.getMinTierId() != null) {
@@ -59,18 +65,16 @@ public class PromotionService {
         return new PromotionResponse(promotionRepository.save(promotion));
     }
 
-//  Update promotion
+    // Update promotion
     @Transactional
     public PromotionResponse updatePromotion(Integer id, PromotionRequest request) {
         Promotion promo = promotionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Promotion not found with ID: " + id));
 
-        // 1. Check duplicate promo name (excluding current ID)
         if (promotionRepository.existsByPromoNameAndPromoIdNot(request.getPromoName(), id)) {
             throw new RuntimeException("Promo name '" + request.getPromoName() + "' is already taken by another promotion!");
         }
 
-        // 2. Validate dates
         if (request.getEndDate().isBefore(request.getStartDate())) {
             throw new RuntimeException("End date cannot be before start date!");
         }
@@ -81,8 +85,9 @@ public class PromotionService {
         promo.setStartDate(request.getStartDate());
         promo.setEndDate(request.getEndDate());
 
-        if (request.getStatus() != null && !request.getStatus().isBlank()) {
-            promo.setStatus(request.getStatus());
+        // Cập nhật trạng thái isActive mới
+        if (request.getIsActive() != null) {
+            promo.setIsActive(request.getIsActive());
         }
 
         if (request.getMinTierId() != null) {
@@ -95,12 +100,13 @@ public class PromotionService {
 
         return new PromotionResponse(promotionRepository.save(promo));
     }
-//  Delete promotion
+
     @Transactional
     public void deletePromotion(Integer promoId) {
-        if (!promotionRepository.existsById(promoId)) {
-            throw new RuntimeException("Promotion not found with ID: " + promoId);
-        }
-        promotionRepository.deleteById(promoId);
+        Promotion promo = promotionRepository.findById(promoId)
+                .orElseThrow(() -> new RuntimeException("Promotion not found with ID: " + promoId));
+
+        promo.setIsActive(false);
+        promotionRepository.save(promo);
     }
 }

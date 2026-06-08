@@ -25,8 +25,8 @@ public class PromotionRequest {
     @NotNull(message = "End date cannot be null")
     private LocalDate endDate;
 
-    private String status;
+    private Boolean isActive;
 
-    @Min(value = 0, message = "Minimum priority level cannot be negative")
+    @Min(value = 1, message = "Minimum tier ID must be at least 1")
     private Integer minTierId;
 }

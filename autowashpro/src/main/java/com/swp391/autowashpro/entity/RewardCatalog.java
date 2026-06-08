@@ -32,6 +32,9 @@ public class RewardCatalog {
     @Column(name = "discount_amount", precision = 18,scale = 2)
     private BigDecimal discountAmount = BigDecimal.ZERO;
 
+    @Column(name = "stock_quantity", nullable = false)
+    private Integer stockQuantity = 0;
+
     @Column(name = "is_active")
     private Boolean isActive = true;
 

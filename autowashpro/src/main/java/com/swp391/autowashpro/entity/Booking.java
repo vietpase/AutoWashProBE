@@ -9,7 +9,6 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -19,32 +18,41 @@ import java.util.List;
 @Setter
 @Getter
 public class Booking {
+
     @Id
     @Column(name = "booking_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer bookingId;
 
-    @Column(name = "booking_date",nullable = false)
+    @Column(name = "booking_date", nullable = false)
     private LocalDate bookingDate;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt =  LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "priority_level",nullable = false)
+    @Column(name = "priority_level", nullable = false)
     private Integer priorityLevel = 1;
 
     @Column(name = "status", length = 30, nullable = false)
-    private String status = "Pending";
+    private String status = "PENDING";//"PENDING", "CONFIRMED", "COMPLETE", "CANCELLED"
 
-    @Column(name = "total_price",nullable = false, precision = 18, scale = 2)
+    @Column(name = "total_price", nullable = false, precision = 18, scale = 2)
     private BigDecimal totalPrice;
+
+    @Column(name = "base_price_at_booking", nullable = false, precision = 18, scale = 2)
+    private BigDecimal basePriceAtBooking; // Giá gốc của dịch vụ lúc đặt
+
+    @Column(name = "license_plate_at_booking", length = 20, nullable = false)
+    private String licensePlateAtBooking; // Biển số xe lúc đặt
+
+    // --- MỐI QUAN HỆ GIỮA CÁC BẢNG (RELATIONSHIPS) ---
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "slot_id",nullable = false)
+    @JoinColumn(name = "slot_id", nullable = false)
     private TimeSlot timeSlot;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,18 +63,13 @@ public class Booking {
     @JoinColumn(name = "promotion_id")
     private Promotion promotion;
 
+    // Lưu vết Rank của khách ngay tại thời điểm đặt lịch để tính Priority & Discount
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tier_id_at_booking", nullable = false)
     private LoyaltyTier tierAtBooking;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cancelled_by_admin_id")
-    private AdminAccount cancelledByAdmin;
-
+    // Danh sách các voucher đổi thưởng được áp dụng cho đơn đặt lịch này
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RewardRedemption> rewardRedemptions;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by_admin_id", referencedColumnName = "admin_id")
-    private AdminAccount createdByAdmin;
 }

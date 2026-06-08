@@ -41,13 +41,13 @@ public class Customer {
     private String password;
 
     @Column(name = "current_points")
-    private int currentPoints = 0;
+    private Integer currentPoints = 0;
 
     @Column(name = "total_spend", precision = 18, scale = 2)
     private BigDecimal totalSpend = BigDecimal.ZERO;
 
     @Column(name = "total_visits")
-    private int totalVisits = 0;
+    private Integer totalVisits = 0;
 
     @Column(name = "last_tier_review")
     private Date lastTierReview;

@@ -25,9 +25,9 @@ public class PromotionController {
         this.promotionService = promotionService;
     }
 
-    // Get all promotions
     @GetMapping
-    @Operation(summary = "Get all promotions", description = "Retrieve a full list of all available promotions. Open for both customers and staff to view.")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    @Operation(summary = "Get all promotions (Manager view)", description = "Retrieve a full list of all available promotions including inactive ones.")
     public ResponseEntity<?> getAllPromotions() {
         try {
             List<PromotionResponse> promotions = promotionService.getAllPromotions();
@@ -37,21 +37,29 @@ public class PromotionController {
         }
     }
 
-    // Create a new promotion
+    @GetMapping("/active")
+    @Operation(summary = "Get active promotions for customers", description = "Retrieve a list of promotions that are currently active and valid.")
+    public ResponseEntity<?> getActivePromotions() {
+        try {
+            List<PromotionResponse> promotions = promotionService.getActivePromotions();
+            return ResponseEntity.ok(promotions);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('MANAGER')")
     @Operation(summary = "Create a new promotion (Manager Only)", description = "Allows manager to onboard a new marketing campaign or discount event.")
     public ResponseEntity<?> createPromotion(@Valid @RequestBody PromotionRequest request) {
         try {
             PromotionResponse createdPromotion = promotionService.createPromotion(request);
-            // Trả về trạng thái 201 Created giống như cấu hình cũ của ông
             return ResponseEntity.status(HttpStatus.CREATED).body(createdPromotion);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // Update an existing promotion
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
     @Operation(summary = "Update an existing promotion (Manager Only)", description = "Allows manager to modify information or change duration/conditions of a promotion by its ID.")
@@ -67,14 +75,13 @@ public class PromotionController {
         }
     }
 
-    // Delete a promotion
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    @Operation(summary = "Delete a promotion (Manager Only)", description = "Permanently remove a promotion campaign from the system.")
+    @Operation(summary = "Deactivate a promotion (Manager Only)", description = "Deactivate a promotion campaign by setting its active status to false to preserve historical logs.")
     public ResponseEntity<?> deletePromotion(@PathVariable("id") Integer id) {
         try {
             promotionService.deletePromotion(id);
-            return ResponseEntity.ok("Promotion with ID " + id + " has been deleted successfully!");
+            return ResponseEntity.ok("Promotion deactivated successfully with ID: " + id);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

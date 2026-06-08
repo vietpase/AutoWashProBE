@@ -15,7 +15,7 @@ public class PromotionResponse {
     private Double discountAmount;
     private LocalDate startDate;
     private LocalDate endDate;
-    private String status;
+    private Boolean isActive; // Đã đổi từ String status sang Boolean isActive
     private Integer minTierId;
     private String minTierName;
 
@@ -26,7 +26,7 @@ public class PromotionResponse {
         this.discountAmount = promo.getDiscountAmount();
         this.startDate = promo.getStartDate();
         this.endDate = promo.getEndDate();
-        this.status = promo.getStatus();
+        this.isActive = promo.getIsActive();
 
         if (promo.getLoyaltyTier() != null) {
             this.minTierId = promo.getLoyaltyTier().getTierId();
