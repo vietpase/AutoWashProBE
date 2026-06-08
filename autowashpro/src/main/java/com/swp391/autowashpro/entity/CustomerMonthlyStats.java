@@ -41,6 +41,4 @@ public class CustomerMonthlyStats {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    // Lấy tháng năm hiện tại và chuyển thành chuỗi "202605"
-    String currentPeriod = YearMonth.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
 }

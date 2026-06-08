@@ -39,6 +39,20 @@ public class WashServiceController {
         }
     }
 
+    @GetMapping("/active")
+    @Operation(
+            summary = "Get all active wash services for customers",
+            description = "Retrieve a list of wash service packages that are currently active and available for booking."
+    )
+    public ResponseEntity<?> getActiveServices() {
+        try {
+            List<WashServiceResponse> services = washServiceService.getActiveWashServices();
+            return ResponseEntity.ok(services);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('MANAGER')")
     @Operation(
@@ -72,13 +86,14 @@ public class WashServiceController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
     @Operation(
-            summary = "Delete a wash service (Manager Only)",
-            description = "Permanently delete a wash service package from the system. If the service is referenced in existing bookings, the database constraints will prevent deletion."
+            summary = "Soft delete / Deactivate a wash service (Manager Only)",
+            description = "Deactivate a wash service package by setting its active status to false."
     )
-    public ResponseEntity<?> delete(@PathVariable Integer id) {
+    public ResponseEntity<?> deactivate(@PathVariable Integer id) {
         try {
-            washServiceService.deleteService(id);
-            return ResponseEntity.ok("Wash service deleted successfully with ID: " + id);
+            washServiceService.deactivateService(id);
+
+            return ResponseEntity.ok("Wash service deactivated successfully with ID: " + id);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

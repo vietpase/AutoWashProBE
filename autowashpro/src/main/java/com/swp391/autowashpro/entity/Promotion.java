@@ -20,7 +20,7 @@ public class Promotion {
     @Column(name = "promo_id")
     private Integer promoId;
 
-    @Column(name = "promo_name", columnDefinition = "NVARCHAR(100)",nullable = false)
+    @Column(name = "promo_name", columnDefinition = "NVARCHAR(100)", nullable = false)
     private String promoName;
 
     @Column(name = "description", columnDefinition = "NVARCHAR(500)")
@@ -35,11 +35,10 @@ public class Promotion {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    @Column(name = "status", length = 30)
-    private String status = "Active";
+    @Column(name = "is_active")
+    private Boolean isActive = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "min_tier_id")
     private LoyaltyTier loyaltyTier;
-
 }

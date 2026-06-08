@@ -22,6 +22,12 @@ public class WashServiceService {
     public List<WashServiceResponse>getAllWashServices(){
         return washServiceRepository.findAll().stream().map(WashServiceResponse::new).toList();
     }
+//  Get only active wash services (Customer view - only sees active packages)
+    public List<WashServiceResponse> getActiveWashServices() {
+        return washServiceRepository.findByIsActiveTrue().stream()
+                .map(WashServiceResponse::new)
+                .toList();
+    }
 //  Create a new wash service with duplicate name validation
     @Transactional
     public WashServiceResponse createService(WashServiceRequest request) {
@@ -64,13 +70,14 @@ public class WashServiceService {
         return new WashServiceResponse(washServiceRepository.save(service));
     }
 
-//  Delete a wash service completely
+//  Deactivate a wash service completely
     @Transactional
-    public void deleteService(Integer id) {
-        if (!washServiceRepository.existsById(id)) {
-            throw new RuntimeException("Wash service not found with ID: " + id);
-        }
-        washServiceRepository.deleteById(id);
+    public void deactivateService(Integer id) {
+        WashService service = washServiceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Wash service not found with ID: " + id));
+
+        service.setIsActive(false);
+        washServiceRepository.save(service);
     }
 
 }

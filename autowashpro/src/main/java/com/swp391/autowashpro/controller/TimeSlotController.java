@@ -69,11 +69,11 @@ public class TimeSlotController {
     // Delete an existing TimeSlot
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    @Operation(summary = "Delete a time slot (Manager Only)", description = "Permanently remove a time slot. Chained bookings will block this action.")
+    @Operation(summary = "Deactivate a time slot (Manager Only)", description = "Deactivate a time slot.")
     public ResponseEntity<?> deleteSlot(@PathVariable("id") Integer id) {
         try {
-            timeSlotService.deleteTimeSlot(id);
-            return ResponseEntity.ok("Time slot with ID " + id + " has been deleted successfully!");
+            timeSlotService.deactivateTimeSlot(id);
+            return ResponseEntity.ok("Time slot with ID " + id + " has been deactivated successfully!");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

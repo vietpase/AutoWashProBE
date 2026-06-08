@@ -1,12 +1,11 @@
 package com.swp391.autowashpro.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.GroupSequence;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,11 +20,19 @@ public class RewardRedemption {
     @Column(name = "redemption_id")
     private Integer redemptionId;
 
-    @Column(name = "points_used",nullable = false)
+    @Column(name = "points_used", nullable = false)
     private Integer pointsUsed;
 
     @Column(name = "redemption_date")
-    private LocalDateTime redemptionDate;
+    private LocalDateTime redemptionDate = LocalDateTime.now();
+
+    // --- SNAPSHOT FIELDS (ĐÓNG BĂNG DỮ LIỆU LÚC ĐỔI QUÀ) ---
+    @Column(name = "reward_name_at_redemption", nullable = false, columnDefinition = "NVARCHAR(100)")
+    private String rewardNameAtRedemption;
+
+    @Column(name = "discount_amount_at_redemption", nullable = false, precision = 18, scale = 2)
+    private BigDecimal discountAmountAtRedemption;
+    // -----------------------------------------------------
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
@@ -36,7 +43,6 @@ public class RewardRedemption {
     private RewardCatalog rewardCatalog;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booking_id")
+    @JoinColumn(name = "booking_id") // Cho phép NULL khi chưa áp dụng vào đơn đặt lịch
     private Booking booking;
-
 }
