@@ -27,10 +27,23 @@ public class TimeSlotController {
 
     // Get all TimeSlots
     @GetMapping
-    @Operation(summary = "Get all time slots", description = "Retrieve a full list of all time slots for both customers and staff to view.")
+    @PreAuthorize("hasRole('MANAGER')")
+    @Operation(summary = "Get all time slots (Manager Only)", description = "Retrieve a full list of all time slots for Manager.")
     public ResponseEntity<?> getAllSlots() {
         try {
             List<TimeSlotResponse> slots = timeSlotService.getAllTimeSlots();
+            return ResponseEntity.ok(slots);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    //Get Active TimeSlots
+    @GetMapping("/active")
+    //@PreAuthorize("hasAnyRole('CUSTOMER', 'STAFF', 'MANAGER')")
+    @Operation(summary = "Get active time slots (Customer, Staff view)", description = "Retrieve a full list of all time slots for both customers and staff to view.")
+    public ResponseEntity<?> getActiveSlots() {
+        try {
+            List<TimeSlotResponse> slots = timeSlotService.getActiveTimeSlots();
             return ResponseEntity.ok(slots);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

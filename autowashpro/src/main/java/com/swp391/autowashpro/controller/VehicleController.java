@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class VehicleController {
     }
 
     @GetMapping("/customer")
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(
             summary = "Get customer vehicle list",
             description = "Returns a complete collection of all registered cars/motorbikes assigned to a specific customer's garage portfolio."
@@ -39,6 +41,7 @@ public class VehicleController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(
             summary = "Add a new vehicle",
             description = "Attaches a new vehicle asset (plate number, type, brand) directly into the owning customer's active account portfolio."
@@ -53,6 +56,7 @@ public class VehicleController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(
             summary = "Update vehicle by ID",
             description = "Modifies the structural properties, registration plates, or type classification info of an existing target vehicle asset."
@@ -68,6 +72,7 @@ public class VehicleController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(
             summary = "Delete vehicle by ID",
             description = "Decommissions a customer's vehicle asset from the system view. Historical dependent order logs may lock this operation from physical hard deletion."

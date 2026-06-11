@@ -2,6 +2,8 @@ package com.swp391.autowashpro.controller;
 
 import com.swp391.autowashpro.dto.PromotionRequest;
 import com.swp391.autowashpro.dto.PromotionResponse;
+import com.swp391.autowashpro.entity.Promotion;
+import com.swp391.autowashpro.repository.PromotionRepository;
 import com.swp391.autowashpro.service.PromotionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,8 +28,8 @@ public class PromotionController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('MANAGER')")
-    @Operation(summary = "Get all promotions (Manager view)", description = "Retrieve a full list of all available promotions including inactive ones.")
+    @PreAuthorize("hasRole('MANAGER')")
+    @Operation(summary = "Get all promotions (Manager Only)", description = "Retrieve a full list of all available promotions including inactive ones.")
     public ResponseEntity<?> getAllPromotions() {
         try {
             List<PromotionResponse> promotions = promotionService.getAllPromotions();
@@ -38,7 +40,8 @@ public class PromotionController {
     }
 
     @GetMapping("/active")
-    @Operation(summary = "Get active promotions for customers", description = "Retrieve a list of promotions that are currently active and valid.")
+    //@PreAuthorize("hasAnyRole('CUSTOMER', 'STAFF', 'MANAGER')")
+    @Operation(summary = "Get active promotions for customers(Customer, Staff view)", description = "Retrieve a list of promotions that are currently active and valid.")
     public ResponseEntity<?> getActivePromotions() {
         try {
             List<PromotionResponse> promotions = promotionService.getActivePromotions();
@@ -80,7 +83,7 @@ public class PromotionController {
     @Operation(summary = "Deactivate a promotion (Manager Only)", description = "Deactivate a promotion campaign by setting its active status to false to preserve historical logs.")
     public ResponseEntity<?> deletePromotion(@PathVariable("id") Integer id) {
         try {
-            promotionService.deletePromotion(id);
+            promotionService.deactivatePromotion(id);
             return ResponseEntity.ok("Promotion deactivated successfully with ID: " + id);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

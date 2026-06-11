@@ -22,6 +22,10 @@ public class TimeSlotService {
     public List<TimeSlotResponse> getAllTimeSlots(){
         return timeSlotRepository.findAll().stream().map(TimeSlotResponse::new).toList();
     }
+//  Get Active TimeSlots
+    public List<TimeSlotResponse> getActiveTimeSlots(){
+        return timeSlotRepository.findByIsActiveTrue().stream().map(TimeSlotResponse::new).toList();
+    }
 
 //   Create a new TimeSlot
     @Transactional

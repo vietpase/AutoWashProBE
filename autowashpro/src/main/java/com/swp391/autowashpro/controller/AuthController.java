@@ -32,6 +32,7 @@ public class AuthController {
             Customer customer = authService.registerCustomer(request);
             return ResponseEntity.status(HttpStatus.CREATED).body("Register successfully for: " + customer.getFullName());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

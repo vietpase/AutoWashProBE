@@ -10,4 +10,5 @@ public class AuthResponse {
     private String loginKey;
     private String fullName;
     private String roleName;
+    private String token;
 }

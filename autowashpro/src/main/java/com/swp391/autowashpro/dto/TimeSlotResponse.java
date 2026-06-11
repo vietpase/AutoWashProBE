@@ -1,9 +1,10 @@
 package com.swp391.autowashpro.dto;
 
 import com.swp391.autowashpro.entity.TimeSlot;
+import lombok.Data;
 
 import java.time.LocalTime;
-
+@Data
 public class TimeSlotResponse {
     private Integer slotId;
     private String slotName;

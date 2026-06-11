@@ -102,7 +102,7 @@ public class PromotionService {
     }
 
     @Transactional
-    public void deletePromotion(Integer promoId) {
+    public void deactivatePromotion(Integer promoId) {
         Promotion promo = promotionRepository.findById(promoId)
                 .orElseThrow(() -> new RuntimeException("Promotion not found with ID: " + promoId));
 

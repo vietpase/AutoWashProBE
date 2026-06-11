@@ -26,6 +26,7 @@ public class LoyaltyTierController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('MANAGER')")
     @Operation(
             summary = "Get all loyalty tiers (Manager view)",
             description = "Retrieve the full list of membership tiers including both active and inactive levels. Ordered by priority level."
@@ -40,8 +41,9 @@ public class LoyaltyTierController {
     }
 
     @GetMapping("/active")
+    //@PreAuthorize("hasAnyRole('CUSTOMER', 'STAFF', 'MANAGER')")
     @Operation(
-            summary = "Get active loyalty tiers(Customer view)",
+            summary = "Get active loyalty tiers(Customer, Staff view)",
             description = "Retrieve only the membership tiers that are currently active and running. Publicly accessible by customers to view benefits."
     )
     public ResponseEntity<?> getActiveTiers() {

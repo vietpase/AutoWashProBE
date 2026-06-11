@@ -5,15 +5,18 @@ import com.swp391.autowashpro.entity.Customer;
 import com.swp391.autowashpro.repository.AdminAccountRepository;
 import com.swp391.autowashpro.repository.CustomerRepository;
 import com.swp391.autowashpro.repository.LoyaltyTierRepository;
+import com.swp391.autowashpro.security.JwtService;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class AuthService {
@@ -23,18 +26,20 @@ public class AuthService {
     private final AdminAccountRepository adminAccountRepository;
     private final LoyaltyTierRepository loyaltyTierRepository;
     private JavaMailSender javaMailSender;
+    private JwtService jwtService;
 
     //Record OTP(Key: Email, Value: OTP)
     private final Map<String,String>otpStorage=new HashMap<>();
 
     public AuthService(CustomerRepository customerRepository, BCryptPasswordEncoder passwordEncoder,
                        AdminAccountRepository adminAccountRepository, LoyaltyTierRepository loyaltyTierRepository,
-                       JavaMailSender javaMailSender){
+                       JavaMailSender javaMailSender, JwtService jwtService){
         this.customerRepository = customerRepository;
         this.passwordEncoder = passwordEncoder;
         this.adminAccountRepository = adminAccountRepository;
         this.loyaltyTierRepository = loyaltyTierRepository;
         this.javaMailSender=javaMailSender;
+        this.jwtService = jwtService;
 
     }
 
@@ -63,8 +68,19 @@ public class AuthService {
                 throw new RuntimeException("The administrator account password is incorrect!");
             }
             String roleName = "ROLE_"+ admin.getRole().toUpperCase();
-            return new AuthResponse(admin.getAdminId(),
-                    admin.getUsername(),admin.getFullName(),roleName);
+            String token =
+                    jwtService.generateToken(
+                            admin.getUsername(),
+                            roleName
+                    );
+
+            return new AuthResponse(
+                    admin.getAdminId(),
+                    admin.getUsername(),
+                    admin.getFullName(),
+                    roleName,
+                    token
+            );
         }
 
 //        TH2: Check customer
@@ -75,8 +91,16 @@ public class AuthService {
                 throw new RuntimeException("The customer account password is incorrect!");
             }
             String roleName = "ROLE_CUSTOMER";
+
+            String token =
+                    jwtService.generateToken(
+                            customer.getPhoneNumber(),
+                            roleName
+                    );
+
+
             return new AuthResponse(customer.getCustomerId(),customer.getPhoneNumber(),
-                                    customer.getFullName(),roleName);
+                    customer.getFullName(),roleName,token);
         }
 
 //        TH3: No userName, phoneNumber matched
