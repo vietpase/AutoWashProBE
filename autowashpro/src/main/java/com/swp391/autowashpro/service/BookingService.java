@@ -41,7 +41,7 @@ public class BookingService {
      * ========================================================================= */
 
     /**
-     * Khách hàng đặt lịch Online từ App/Web
+     * Khách hàng đặt lịch Online từ Web
      */
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {

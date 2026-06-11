@@ -1,9 +1,10 @@
 package com.swp391.autowashpro.dto;
 
 import com.swp391.autowashpro.entity.LoyaltyTier;
+import lombok.Data;
 
 import java.math.BigDecimal;
-
+@Data
 public class LoyaltyTierResponse {
     private Integer tierId;
     private String tierName;

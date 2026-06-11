@@ -34,20 +34,21 @@ public class RewardService {
     //  QUẢN LÝ DANH MỤC QUÀ (MANAGEMENT LOGICS)
     // ==========================================
 
+    //Get all rewards
     @Transactional(readOnly = true)
     public List<RewardCatalogResponse> getAllRewardsForAdmin() {
         return rewardCatalogRepository.findAllByOrderByPointsRequiredAsc().stream()
                 .map(RewardCatalogResponse::new)
                 .toList();
     }
-
+    //Get active rewards
     @Transactional(readOnly = true)
     public List<RewardCatalogResponse> getActiveRewardsForCustomer() {
         return rewardCatalogRepository.findByIsActiveTrueAndStockQuantityGreaterThanOrderByPointsRequiredAsc(0).stream()
                 .map(RewardCatalogResponse::new)
                 .toList();
     }
-
+    //Create a new reward
     @Transactional
     public RewardCatalogResponse createReward(RewardCatalogRequest request) {
         if (rewardCatalogRepository.existsByRewardName(request.getRewardName())) {
@@ -63,7 +64,7 @@ public class RewardService {
 
         return new RewardCatalogResponse(rewardCatalogRepository.save(reward));
     }
-
+    //Update a reward
     @Transactional
     public RewardCatalogResponse updateReward(Integer id, RewardCatalogRequest request) {
         RewardCatalog reward = rewardCatalogRepository.findById(id)
@@ -85,6 +86,7 @@ public class RewardService {
         return new RewardCatalogResponse(rewardCatalogRepository.save(reward));
     }
 
+    //Deactivate a reward
     @Transactional
     public void deleteRewardSoft(Integer id) {
         RewardCatalog reward = rewardCatalogRepository.findById(id)

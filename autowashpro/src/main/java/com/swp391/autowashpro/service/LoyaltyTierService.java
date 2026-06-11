@@ -20,8 +20,13 @@ public class LoyaltyTierService {
 //  Get All LoyaltyTiers for manager
         @Transactional
         public List<LoyaltyTierResponse> getAllTiers() {
-            // Trả về toàn bộ danh sách phân cấp sắp xếp theo mức độ ưu tiên
-            return loyaltyTierRepository.findAllByOrderByPriorityLevelAsc().stream()
+
+            List<LoyaltyTier> tiers =
+                    loyaltyTierRepository.findAllByOrderByPriorityLevelAsc();
+
+            System.out.println("Found: " + tiers.size());
+
+            return tiers.stream()
                     .map(LoyaltyTierResponse::new)
                     .toList();
         }

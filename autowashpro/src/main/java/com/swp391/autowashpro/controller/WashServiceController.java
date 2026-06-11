@@ -26,8 +26,9 @@ public class WashServiceController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('MANAGER')")
     @Operation(
-            summary = "Get all wash services",
+            summary = "Get all wash services (Manager Only)",
             description = "Retrieve a full list of all wash service packages available in the system. Accessible by customers, staff, and managers."
     )
     public ResponseEntity<?> getAll(){
@@ -40,8 +41,9 @@ public class WashServiceController {
     }
 
     @GetMapping("/active")
+    //@PreAuthorize("hasAnyRole('CUSTOMER', 'STAFF', 'MANAGER')")
     @Operation(
-            summary = "Get all active wash services for customers",
+            summary = "Get all active wash services for customers(Customer, Staff view)",
             description = "Retrieve a list of wash service packages that are currently active and available for booking."
     )
     public ResponseEntity<?> getActiveServices() {
@@ -86,7 +88,7 @@ public class WashServiceController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
     @Operation(
-            summary = "Soft delete / Deactivate a wash service (Manager Only)",
+            summary = "Deactivate a wash service (Manager Only)",
             description = "Deactivate a wash service package by setting its active status to false."
     )
     public ResponseEntity<?> deactivate(@PathVariable Integer id) {

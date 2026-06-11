@@ -59,10 +59,6 @@ public class Customer {
     @JoinColumn(name = "tier_id", nullable = false)
     private LoyaltyTier loyaltyTier;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tier_updated_by_admin_id")
-    private AdminAccount adminAccount;
-
     @PrePersist
     protected void onCreate() {
         if (this.createAt == null) {
