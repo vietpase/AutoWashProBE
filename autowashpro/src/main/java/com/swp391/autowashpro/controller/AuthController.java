@@ -78,4 +78,18 @@ public class AuthController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PostMapping("/google")
+    @Operation(
+            summary = "Google OAuth2 login gateway",
+            description = "Receives a Google ID token from Frontend, verifies it, maps/registers the customer profile, and returns system access JWT keys."
+    )
+    public ResponseEntity<?> loginWithGoogle(@Valid @RequestBody GoogleLoginRequest request){
+        try {
+            AuthResponse authResponse = authService.loginWithGoogle(request);
+            return ResponseEntity.ok(authResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
+    }
 }

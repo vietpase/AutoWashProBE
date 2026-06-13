@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 
+import java.sql.Types;
 import java.time.LocalTime;
 
 @Entity
@@ -23,10 +25,12 @@ public class TimeSlot {
     @Column(name = "slot_name",nullable = false, columnDefinition = "NVARCHAR(255)")
     private String slotName;
 
-    @Column(name = "start_time",nullable = false)
+    @Column(name = "start_time",nullable = false, columnDefinition = "time")
+    @JdbcTypeCode(Types.TIME)
     private LocalTime startTime;
 
-    @Column(name = "end_time",nullable = false)
+    @Column(name = "end_time",nullable = false, columnDefinition = "time")
+    @JdbcTypeCode(Types.TIME)
     private LocalTime endTime;
 
     @Column(name = "max_capacity", nullable = false)
