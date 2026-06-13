@@ -30,13 +30,13 @@ public class Customer {
     @Column(name = "full_name", columnDefinition = "NVARCHAR(100)", nullable = false)
     private String fullName;
 
-    @Column(name = "phone_number", columnDefinition = "VARCHAR(15)", unique = true, nullable = false)
+    @Column(name = "phone_number", columnDefinition = "VARCHAR(15)", unique = true)
     private String phoneNumber;
 
-    @Column(name = "email", columnDefinition = "VARCHAR(100)")
+    @Column(name = "email", columnDefinition = "VARCHAR(100)", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", length = 255, nullable = false)
+    @Column(name = "password", length = 255)
     @JsonIgnore //Jackson will ignore this field when converting to JSON.
     private String password;
 
