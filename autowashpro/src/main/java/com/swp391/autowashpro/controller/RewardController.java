@@ -26,7 +26,7 @@ public class RewardController {
     }
 
     @GetMapping("/admin/all")
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("hasRole('MANAGER')")
     @Operation(summary = "Retrieve all reward items including inactive and out-of-stock items (Manager/Admin View)")
     public ResponseEntity<?> getAllRewardsForAdmin() {
         return ResponseEntity.ok(rewardService.getAllRewardsForAdmin());

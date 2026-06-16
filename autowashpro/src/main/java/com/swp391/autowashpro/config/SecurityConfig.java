@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,6 +31,7 @@ public class SecurityConfig {
             throws Exception {
 
         http
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
@@ -39,7 +41,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/api/auth/**"
+                                "/api/auth/**",
+                                "/error"
                         ).permitAll()
 
                         // Admin
@@ -80,10 +83,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/vehicles/**").hasRole("CUSTOMER")
                         .requestMatchers(HttpMethod.DELETE, "/api/vehicles/**").hasRole("CUSTOMER")
 
-
-
-
-                        .requestMatchers("/api/rewards/**").permitAll()
+                        //reward
+                        .requestMatchers("/api/rewards/active").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/rewards/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.POST, "/api/rewards/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/api/rewards/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/rewards/**").hasRole("MANAGER")
 
                         // Others
                         .anyRequest().authenticated()
