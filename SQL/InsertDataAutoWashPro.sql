@@ -113,7 +113,17 @@
 	('16:00:00', 1, 6, N'Ca Chiều Cao Điểm 1', '15:00:00'),
 	('17:00:00', 1, 6, N'Ca Chiều Cao Điểm 2', '16:00:00'),
 	('18:00:00', 1, 3, N'Ca Tối Muộn', '17:00:00');
-
+	--RewardCatalog
+	INSERT INTO [dbo].[reward_catalog](description, discount_amount, is_active, points_required, reward_name, stock_quantity)
+	VALUES 
+	(N'Áp dụng trực tiếp vào hóa đơn cho mọi dịch vụ rửa xe/chăm sóc xe.', 50000.00, 1, 50, N'Voucher giảm giá 50.000đ', 9),
+	(N'Áp dụng trực tiếp vào hóa đơn cho mọi dịch vụ rửa xe/chăm sóc xe.', 100000.00, 1, 90, N'Voucher giảm giá 100.000đ', 9),
+	(N'Nhận 1 chiếc khăn lau xe siêu thấm hút, không xước sơn tại quầy.', 0.00, 1, 30, N'Khăn lau xe Microfiber cao cấp', 5),
+	(N'Nhận 1 lọ tinh dầu thiên nhiên cao cấp treo xe giúp khử mùi, chống say xe.', 0.00, 1, 60, N'Tinh dầu treo xe hương sả chanh', 10),
+	(N'Voucher miễn phí 100% gói rửa vỏ và hút bụi nhanh trị giá 120k.', 120000.00, 1, 100, N'Miễn phí Rửa xe bọt tuyết cơ bản', 9),
+	(N'Voucher miễn phí gói rửa xe cao cấp, tẩy ố lazang và quét bóng lốp trị giá 200k.', 200000.00, 1, 180, N'Miễn phí Rửa xe chuyên sâu & Dưỡng lốp', 9),
+	(N'Giảm ngay 300.000đ khi sử dụng dịch vụ dọn dẹp nội thất chuyên sâu.', 300000.00, 1, 250, N'Voucher 300k Vệ sinh nội thất', 2),
+	(N'Voucher giảm 100% dịch vụ phủ nano hiệu ứng lá sen chống bám nước kính lái trị giá 500k.', 500000.00, 1, 450, N'Combo Phủ Ceramic kính lái', 9);
 		
 
 
@@ -192,6 +202,7 @@
 	--select * from [dbo].[promotion]		--data inserted
 	--select * from [dbo].[time_slot]		--data inserted
 	--select * from [dbo].[vehicle]
+	--select * from [dbo].[reward_catalog]
 
 
 
@@ -200,7 +211,6 @@
 	--select * from [dbo].[customer_monthly_stats]
 	--select * from [dbo].[loyalty_point]
 	 -- data inserted
-	--select * from [dbo].[reward_catalog]
 	--select * from [dbo].[reward_redemption]
 	
 	--select * from [dbo].[wash_history]
