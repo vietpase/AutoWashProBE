@@ -34,26 +34,22 @@ public class Booking {
     private Integer priorityLevel = 1;
 
     @Column(name = "status", length = 30, nullable = false)
-    private String status = "PENDING";//"PENDING", "CONFIRMED", "COMPLETE", "CANCELLED"
+    private String status = "PENDING"; // "PENDING", "CONFIRMED", "COMPLETE", "CANCELLED"
 
     @Column(name = "total_price", nullable = false, precision = 18, scale = 2)
     private BigDecimal totalPrice;
 
     @Column(name = "base_price_at_booking", nullable = false, precision = 18, scale = 2)
-    private BigDecimal basePriceAtBooking; // Giá gốc của dịch vụ lúc đặt
+    private BigDecimal basePriceAtBooking;
 
     @Column(name = "license_plate_at_booking", length = 20, nullable = false)
-    private String licensePlateAtBooking; // Biển số xe lúc đặt
+    private String licensePlateAtBooking;
 
     // --- MỐI QUAN HỆ GIỮA CÁC BẢNG (RELATIONSHIPS) ---
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "slot_id", nullable = false)
-    private TimeSlot timeSlot;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id", nullable = false)
@@ -63,13 +59,13 @@ public class Booking {
     @JoinColumn(name = "promotion_id")
     private Promotion promotion;
 
-    // Lưu vết Rank của khách ngay tại thời điểm đặt lịch để tính Priority & Discount
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tier_id_at_booking", nullable = false)
     private LoyaltyTier tierAtBooking;
 
-    // Danh sách các voucher đổi thưởng được áp dụng cho đơn đặt lịch này
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RewardRedemption> rewardRedemptions;
 
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<BookingSlot> bookingSlots;
 }

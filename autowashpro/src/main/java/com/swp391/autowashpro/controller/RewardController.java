@@ -62,6 +62,7 @@ public class RewardController {
     }
 
     @PostMapping("/customer/redeem")
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Process customer loyalty points redemption for vouchers or rewards")
     public ResponseEntity<?> redeemRewardPoints(@Valid @RequestBody RedeemRequest request) {
         try {
@@ -73,12 +74,14 @@ public class RewardController {
     }
 
     @GetMapping("/customer/history/{customerId}")
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Retrieve the complete point redemption history of a specific customer")
     public ResponseEntity<?> getCustomerRedemptionHistory(@PathVariable("customerId") Integer customerId) {
         return ResponseEntity.ok(rewardService.getCustomerRedemptionHistory(customerId));
     }
 
     @GetMapping("/customer/unused/{customerId}")
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get list of redeemed vouchers that have NOT been used yet (Available for checkout)")
     public ResponseEntity<?> getAvailableVouchers(@PathVariable("customerId") Integer customerId) {
         return ResponseEntity.ok(rewardService.getAvailableVouchersForCustomer(customerId));
