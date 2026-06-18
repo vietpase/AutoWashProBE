@@ -10,7 +10,6 @@ public interface RewardRedemptionRepository extends JpaRepository<RewardRedempti
 
     List<RewardRedemption> findByCustomerCustomerIdOrderByRedemptionDateDesc(Integer customerId);
 
-    List<RewardRedemption> findByCustomerCustomerIdAndBookingIsNullOrderByRedemptionDateDesc(Integer customerId);
     // Lấy danh sách voucher hợp lệ của khách hàng chưa bị áp vào Booking nào
-    List<RewardRedemption> findByCustomerCustomerIdAndBookingIsNull(Integer customerId);
+    List<RewardRedemption> findByCustomerCustomerIdAndBookingIsNullOrderByRedemptionDateDesc(Integer customerId);
 }

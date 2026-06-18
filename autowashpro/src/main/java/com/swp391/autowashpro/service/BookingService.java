@@ -1,5 +1,6 @@
 package com.swp391.autowashpro.service;
 
+import com.swp391.autowashpro.dto.AvailableSlotResponse;
 import com.swp391.autowashpro.dto.BookingRequest;
 import com.swp391.autowashpro.dto.BookingResponse;
 import com.swp391.autowashpro.dto.WalkInBookingRequest;
@@ -16,14 +17,16 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor // Tự động sinh constructor cho tất cả các field final, đỡ viết tay dài dòng
+@RequiredArgsConstructor
 public class BookingService {
 
-    // --- REPOSITORIES CHUNG ---
+    // --- REPOSITORIES CORE ---
     private final BookingRepository bookingRepository;
+    private final BookingSlotRepository bookingSlotRepository;
     private final CustomerRepository customerRepository;
     private final VehicleRepository vehicleRepository;
     private final TimeSlotRepository timeSlotRepository;
@@ -31,17 +34,78 @@ public class BookingService {
     private final PromotionRepository promotionRepository;
     private final RewardRedemptionRepository rewardRedemptionRepository;
     private final LoyaltyPointRepository loyaltyPointRepository;
-
-    // --- REPOSITORIES BỔ SUNG CHO STAFF ---
     private final WashHistoryRepository washHistoryRepository;
     private final CustomerMonthlyStatsRepository customerMonthlyStatsRepository;
+    private final LoyaltyTierRepository loyaltyTierRepository;
 
     /* =========================================================================
-     * PHẦN 1: CÁC CHỨC NĂNG DÀNH CHO KHÁCH HÀNG (ONLINE CUSTOMER)
+     * PHẦN 1: API DÀNH CHO GIAO DIỆN KHÁCH HÀNG (DISPLAY & UI)
      * ========================================================================= */
 
     /**
-     * Khách hàng đặt lịch Online từ Web
+     * API tính toán động để hiển thị các nút bấm Khung Giờ lên màn hình.
+     * Nút nào không đủ chuỗi ca trống hoặc bị full tải sẽ trả về isAvailable = false để UI xám nút (Disable).
+     */
+    @Transactional(readOnly = true)
+    public List<AvailableSlotResponse> getAvailableSlotsForCustomer(LocalDate date, Integer washServiceId) {
+        WashService washService = washServiceRepository.findById(washServiceId)
+                .orElseThrow(() -> new RuntimeException("Wash service not found."));
+
+        // Tính toán số lượng slot cần thiết (Ví dụ: 180 phút / 60 phút = 3 slots liên tiếp)
+        int slotsNeeded = (int) Math.ceil((double) washService.getDurationMinutes() / 60);
+
+        // Lấy tất cả các ca đang hoạt động và sắp xếp theo thứ tự thời gian bắt đầu tăng dần
+        List<TimeSlot> allActiveSlots = timeSlotRepository.findByIsActiveTrue();
+        allActiveSlots.sort(Comparator.comparing(TimeSlot::getStartTime));
+
+        List<AvailableSlotResponse> responseList = new ArrayList<>();
+
+        for (int i = 0; i < allActiveSlots.size(); i++) {
+            TimeSlot startSlot = allActiveSlots.get(i);
+
+            AvailableSlotResponse dto = new AvailableSlotResponse();
+            dto.setSlotId(startSlot.getSlotId());
+            dto.setSlotName(startSlot.getSlotName());
+            dto.setStartTime(startSlot.getStartTime());
+            dto.setEndTime(startSlot.getEndTime());
+            dto.setMaxCapacity(startSlot.getMaxCapacity());
+
+            // TH 1: Nếu từ ca này trở đi không còn đủ số lượng ca tiếp theo để hoàn thành dịch vụ (lố giờ đóng cửa)
+            if (i + slotsNeeded > allActiveSlots.size()) {
+                dto.setAvailable(false);
+                responseList.add(dto);
+                continue;
+            }
+
+            boolean isChainAvailable = true;
+
+            // TH 2: Quét qua chuỗi các mắt xích ca con tiếp theo xem có ca nào bị full chỗ không
+            for (int j = 0; j < slotsNeeded; j++) {
+                TimeSlot intermediateSlot = allActiveSlots.get(i + j);
+
+                // Gọi câu lệnh COUNT từ SQL xuống bảng trung gian
+                long occupiedCount = bookingSlotRepository.countOccupiedVehicles(date, intermediateSlot.getSlotId());
+
+                if (occupiedCount >= intermediateSlot.getMaxCapacity()) {
+                    isChainAvailable = false;
+                    break; // Bị nghẽn ở giữa chừng -> Huỷ chuỗi ngay lập tức
+                }
+            }
+
+            dto.setAvailable(isChainAvailable);
+            responseList.add(dto);
+        }
+
+        return responseList;
+    }
+
+
+    /* =========================================================================
+     * PHẦN 2: CÁC CHỨC NĂNG DÀNH CHO KHÁCH HÀNG (ONLINE CUSTOMER)
+     * ========================================================================= */
+
+    /**
+     * Khách hàng đặt lịch Online từ Web (Chỉ nhận vào 1 slotId bắt đầu dạng Single-Select)
      */
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {
@@ -50,29 +114,24 @@ public class BookingService {
                 .orElseThrow(() -> new RuntimeException("Customer not found."));
         LoyaltyTier currentTier = customer.getLoyaltyTier();
 
-        // 2. Validate Booking Window (Hạn ngày đặt lịch tối đa dựa theo Rank khách)
+        // 2. Validate Booking Window
         long daysBetween = ChronoUnit.DAYS.between(LocalDate.now(), request.getBookingDate());
         if (daysBetween < 0 || daysBetween > currentTier.getBookingWindowDays()) {
             throw new RuntimeException("Your membership tier limits bookings within " + currentTier.getBookingWindowDays() + " days ahead.");
         }
 
-        // 3. Kiểm tra xe (Vehicle) có đúng thuộc sở hữu của Customer này không
+        // 3. Kiểm tra xe (Vehicle)
         Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
                 .orElseThrow(() -> new RuntimeException("Vehicle not found."));
         if (!vehicle.getCustomer().getCustomerId().equals(customer.getCustomerId())) {
             throw new RuntimeException("This vehicle does not belong to the requested customer.");
         }
 
-        // 4. Kiểm tra Slot giờ & Check quá tải công suất (Max Capacity)
-        TimeSlot slot = timeSlotRepository.findById(request.getSlotId())
+        // 4. Kiểm tra Slot giờ bắt đầu khách bấm chọn
+        TimeSlot startSlot = timeSlotRepository.findById(request.getSlotId())
                 .orElseThrow(() -> new RuntimeException("Time Slot not found."));
-        if (!slot.getIsActive()) {
+        if (!startSlot.getIsActive()) {
             throw new RuntimeException("This timeslot is currently closed.");
-        }
-
-        long currentBookingsCount = bookingRepository.countActiveBookings(request.getBookingDate(), slot.getSlotId());
-        if (currentBookingsCount >= slot.getMaxCapacity()) {
-            throw new RuntimeException("This timeslot is full. Maximum capacity is " + slot.getMaxCapacity() + " vehicles.");
         }
 
         // 5. Kiểm tra dịch vụ rửa xe
@@ -82,19 +141,20 @@ public class BookingService {
             throw new RuntimeException("This wash service is deactivated.");
         }
 
+        // 6. THUẬT TOÁN ĐẾM CHỖ CHUỖI MẮT XÍCH QUA BẢNG TRUNG GIAN (Bảo vệ Backend)
+        List<TimeSlot> slotsToReserve = validateAndGetChainSlots(request.getBookingDate(), startSlot, washService);
+
         // --- ENGINE TÍNH TIỀN ---
         BigDecimal basePrice = washService.getPrice();
         BigDecimal discountFromTier = BigDecimal.ZERO;
         BigDecimal discountFromPromo = BigDecimal.ZERO;
         BigDecimal discountFromVouchers = BigDecimal.ZERO;
 
-        // A. Giảm giá theo Rank thành viên (discount_percent)
         if (currentTier.getDiscountPercent() > 0) {
             BigDecimal multiplier = BigDecimal.valueOf(currentTier.getDiscountPercent()).divide(BigDecimal.valueOf(100));
             discountFromTier = basePrice.multiply(multiplier);
         }
 
-        // B. Giảm giá từ Promotion marketing (nếu có)
         Promotion promotion = null;
         if (request.getPromotionId() != null) {
             promotion = promotionRepository.findById(request.getPromotionId()).orElse(null);
@@ -103,14 +163,16 @@ public class BookingService {
             }
         }
 
-        // C. Giảm giá từ đống Voucher đổi điểm (RewardRedemption) khách gom vào đơn
         List<RewardRedemption> redemptionsToApply = new ArrayList<>();
         if (request.getAppliedRedemptionIds() != null && !request.getAppliedRedemptionIds().isEmpty()) {
             for (Integer redemptionId : request.getAppliedRedemptionIds()) {
+                if (redemptionId == null || redemptionId == 0) {
+                    continue;
+                }
+
                 RewardRedemption redemption = rewardRedemptionRepository.findById(redemptionId)
                         .orElseThrow(() -> new RuntimeException("Voucher code " + redemptionId + " not found."));
 
-                // Khớp xem voucher có đúng của ông khách này không và đã xài chưa
                 if (!redemption.getCustomer().getCustomerId().equals(customer.getCustomerId())) {
                     throw new RuntimeException("Voucher does not belong to this customer.");
                 }
@@ -123,33 +185,36 @@ public class BookingService {
             }
         }
 
-        // D. Tổng hợp lại số tiền cuối cùng (Nếu âm tiền thì đưa về 0)
         BigDecimal totalDiscount = discountFromTier.add(discountFromPromo).add(discountFromVouchers);
         BigDecimal finalPrice = basePrice.subtract(totalDiscount);
-        if (finalPrice.compareTo(BigDecimal.ZERO) < 0) {
-            finalPrice = BigDecimal.ZERO;
-        }
+        if (finalPrice.compareTo(BigDecimal.ZERO) < 0) finalPrice = BigDecimal.ZERO;
 
-        // 6. Khởi tạo và Lưu thông tin đơn đặt lịch hoàn chỉnh
+        // 7. Khởi tạo và Lưu thông tin đơn đặt lịch chính
         Booking booking = new Booking();
         booking.setBookingDate(request.getBookingDate());
         booking.setVehicle(vehicle);
-        booking.setTimeSlot(slot);
         booking.setWashService(washService);
         booking.setPromotion(promotion);
         booking.setStatus("PENDING");
 
-        // --- CẬP NHẬT ĐÓNG BĂNG SNAPSHOT CHO LUỒNG ONLINE ---
-        booking.setBasePriceAtBooking(basePrice); // Đóng băng giá gốc lúc đặt
-        booking.setTotalPrice(finalPrice);       // Đóng băng giá thực thu sau giảm
-        booking.setLicensePlateAtBooking(vehicle.getLicensePlate()); // Đóng băng biển số xe
+        // Đóng băng dữ liệu Snapshot
+        booking.setBasePriceAtBooking(basePrice);
+        booking.setTotalPrice(finalPrice);
+        booking.setLicensePlateAtBooking(vehicle.getLicensePlate());
         booking.setTierAtBooking(currentTier);
         booking.setPriorityLevel(currentTier.getPriorityLevel());
-        // ----------------------------------------------------
 
         Booking savedBooking = bookingRepository.save(booking);
 
-        // 7. Thực hiện map ngược ID Booking vào các Voucher để "vô hiệu hóa" chúng
+        // 8. TIẾN HÀNH GIỮ CHỖ THỰC TẾ: Đẻ dữ liệu vào bảng trung gian BookingSlot
+        for (TimeSlot targetSlot : slotsToReserve) {
+            BookingSlot bookingSlot = new BookingSlot();
+            bookingSlot.setBooking(savedBooking);
+            bookingSlot.setTimeSlot(targetSlot);
+            bookingSlotRepository.save(bookingSlot);
+        }
+
+        // 9. Vô hiệu hóa Voucher hình thức
         for (RewardRedemption redemption : redemptionsToApply) {
             redemption.setBooking(savedBooking);
             rewardRedemptionRepository.save(redemption);
@@ -160,7 +225,7 @@ public class BookingService {
 
 
     /* =========================================================================
-     * PHẦN 2: CÁC CHỨC NĂNG DÀNH CHO NHÂN VIÊN (STAFF OPERATIONS)
+     * PHẦN 3: CÁC CHỨC NĂNG DÀNH CHO NHÂN VIÊN (STAFF OPERATIONS)
      * ========================================================================= */
 
     /**
@@ -172,7 +237,7 @@ public class BookingService {
                 .orElseThrow(() -> new RuntimeException("Booking not found."));
 
         if (!booking.getStatus().equalsIgnoreCase("Pending")) {
-            throw new RuntimeException("Only 'Pending' bookings can be confirmed. Current status: " + booking.getStatus());
+            throw new RuntimeException("Only 'Pending' bookings can be confirmed.");
         }
 
         booking.setStatus("Confirmed");
@@ -184,19 +249,16 @@ public class BookingService {
      */
     @Transactional
     public BookingResponse completeBookingAndPay(Integer bookingId) {
-        // 1. Kiểm tra đơn đặt lịch
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found."));
 
         if (!booking.getStatus().equalsIgnoreCase("Confirmed")) {
-            throw new RuntimeException("Booking must be 'Confirmed' to complete. Current: " + booking.getStatus());
+            throw new RuntimeException("Booking must be 'Confirmed' to complete.");
         }
 
-        // 2. Chuyển trạng thái sang Completed
         booking.setStatus("Completed");
         Booking savedBooking = bookingRepository.save(booking);
 
-        // 3. Tính toán số điểm khách đã tiêu từ voucher áp dụng
         int totalPointsUsed = 0;
         if (savedBooking.getRewardRedemptions() != null && !savedBooking.getRewardRedemptions().isEmpty()) {
             totalPointsUsed = savedBooking.getRewardRedemptions().stream()
@@ -204,13 +266,11 @@ public class BookingService {
                     .sum();
         }
 
-        // 4. Tính điểm thưởng được cộng dựa trên giá thực tế và Rank đóng băng lúc đặt đơn
         BigDecimal finalPrice = savedBooking.getTotalPrice();
         int basePoints = finalPrice.divide(BigDecimal.valueOf(1000)).intValue();
         double multiplier = savedBooking.getTierAtBooking().getPointMultiplier();
         int totalPointsEarned = (int) Math.round(basePoints * multiplier);
 
-        // 5. Tạo và lưu lịch sử rửa xe (WashHistory)
         WashHistory washHistory = new WashHistory();
         washHistory.setWashDate(LocalDateTime.now());
         washHistory.setAmountPaid(finalPrice);
@@ -219,14 +279,12 @@ public class BookingService {
         washHistory.setBooking(savedBooking);
         WashHistory savedWashHistory = washHistoryRepository.save(washHistory);
 
-        // 6. Cập nhật hồ sơ khách hàng (Customer) - Tích lũy trọn đời
         Customer customer = savedBooking.getVehicle().getCustomer();
         customer.setTotalSpend(customer.getTotalSpend().add(finalPrice));
         customer.setTotalVisits(customer.getTotalVisits() + 1);
         customer.setCurrentPoints(customer.getCurrentPoints() + totalPointsEarned);
         customerRepository.save(customer);
 
-        // 7. Ghi nhận biến động ví điểm (LoyaltyPoint)
         if (totalPointsEarned > 0) {
             LoyaltyPoint pointLog = new LoyaltyPoint();
             pointLog.setCustomer(customer);
@@ -238,7 +296,6 @@ public class BookingService {
             loyaltyPointRepository.save(pointLog);
         }
 
-        // 8. Cập nhật thống kê tích lũy theo tháng (CustomerMonthlyStats)
         String currentYearMonth = YearMonth.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
         CustomerMonthlyStats monthlyStats = customerMonthlyStatsRepository
                 .findByCustomerCustomerIdAndYearMonth(customer.getCustomerId(), currentYearMonth)
@@ -259,22 +316,27 @@ public class BookingService {
     }
 
     /**
-     * Staff Luồng 3: Đặt lịch trực tiếp tại quầy cho Khách vãng lai
+     * Staff Luồng 3: Đặt lịch trực tiếp tại quầy cho Khách vãng lai Walk-in
      */
     @Transactional
     public BookingResponse createWalkInBooking(WalkInBookingRequest request) {
         LocalDate today = LocalDate.now();
 
-        // 1. Kiểm tra công suất phục vụ của Khung giờ
-        TimeSlot slot = timeSlotRepository.findById(request.getSlotId())
+        TimeSlot startSlot = timeSlotRepository.findById(request.getSlotId())
                 .orElseThrow(() -> new RuntimeException("Time Slot not found."));
-
-        long occupiedSlots = bookingRepository.countActiveBookings(today, slot.getSlotId());
-        if (occupiedSlots >= slot.getMaxCapacity()) {
-            throw new RuntimeException("This timeslot is already full for today.");
+        if (!startSlot.getIsActive()) {
+            throw new RuntimeException("This timeslot is currently closed.");
         }
 
-        // 2. Tìm hoặc tự tạo mới tài khoản Customer theo SĐT
+        WashService washService = washServiceRepository.findById(request.getWashServiceId())
+                .orElseThrow(() -> new RuntimeException("Wash service not found."));
+        if (!washService.getIsActive()) {
+            throw new RuntimeException("This wash service is deactivated.");
+        }
+
+        // CHẶN TRÙNG LỊCH CHO LUỒNG TẠI QUẦY
+        List<TimeSlot> slotsToReserve = validateAndGetChainSlots(today, startSlot, washService);
+
         Customer customer = customerRepository.findByPhoneNumber(request.getWalkInPhoneNumber())
                 .orElseGet(() -> {
                     Customer newCust = new Customer();
@@ -282,14 +344,15 @@ public class BookingService {
                     newCust.setPhoneNumber(request.getWalkInPhoneNumber());
                     newCust.setEmail(request.getEmail());
                     newCust.setPassword("WALK_IN_USER_NO_PASSWORD");
-                    newCust.setLoyaltyTier(new LoyaltyTier(1)); // Giả định ID hạng 1 là mặc định
+                    LoyaltyTier defaultTier = loyaltyTierRepository.findById(1)
+                            .orElseThrow(() -> new RuntimeException("Default Loyalty Tier (ID=1) not found in DB."));
+                    newCust.setLoyaltyTier(defaultTier);
                     newCust.setCurrentPoints(0);
                     newCust.setTotalSpend(BigDecimal.ZERO);
                     newCust.setTotalVisits(0);
                     return customerRepository.save(newCust);
                 });
 
-        // 3. Tìm hoặc tự tạo mới thông tin Xe theo Biển số xe
         Vehicle vehicle = vehicleRepository.findByLicensePlate(request.getLicensePlate())
                 .orElseGet(() -> {
                     Vehicle newVehicle = new Vehicle();
@@ -301,39 +364,79 @@ public class BookingService {
                     return vehicleRepository.save(newVehicle);
                 });
 
-        // 4. Lấy thông tin dịch vụ rửa xe
-        WashService washService = washServiceRepository.findById(request.getWashServiceId())
-                .orElseThrow(() -> new RuntimeException("Wash service not found."));
-
-        // 5. Tính toán chi phí và giảm giá hạng thành viên
         BigDecimal basePrice = washService.getPrice();
         BigDecimal discountFromTier = BigDecimal.ZERO;
 
         if (customer.getLoyaltyTier().getDiscountPercent() > 0) {
-            BigDecimal pct = BigDecimal.valueOf(customer.getLoyaltyTier().getDiscountPercent())
-                    .divide(BigDecimal.valueOf(100));
+            BigDecimal pct = BigDecimal.valueOf(customer.getLoyaltyTier().getDiscountPercent()).divide(BigDecimal.valueOf(100));
             discountFromTier = basePrice.multiply(pct);
         }
 
         BigDecimal finalPrice = basePrice.subtract(discountFromTier);
         if (finalPrice.compareTo(BigDecimal.ZERO) < 0) finalPrice = BigDecimal.ZERO;
 
-        // 6. Khởi tạo đơn hàng Booking và đóng băng dữ liệu (Snapshot)
         Booking booking = new Booking();
         booking.setBookingDate(today);
         booking.setVehicle(vehicle);
-        booking.setTimeSlot(slot);
         booking.setWashService(washService);
+        booking.setStatus("Confirmed"); // Khách vãng lai vào thẳng trạng thái chờ rửa luôn
 
-        // Đóng băng trạng thái biến động theo thời gian
         booking.setBasePriceAtBooking(basePrice);
         booking.setTotalPrice(finalPrice);
         booking.setLicensePlateAtBooking(vehicle.getLicensePlate());
         booking.setTierAtBooking(customer.getLoyaltyTier());
         booking.setPriorityLevel(customer.getLoyaltyTier().getPriorityLevel());
 
-        booking.setStatus("Confirmed"); // Vào thẳng trạng thái chờ rửa, không qua bước PENDING nữa
+        Booking savedBooking = bookingRepository.save(booking);
 
-        return new BookingResponse(bookingRepository.save(booking));
+        // GIỮ CHỖ CHO KHÁCH TẠI QUẦY
+        for (TimeSlot targetSlot : slotsToReserve) {
+            BookingSlot bookingSlot = new BookingSlot();
+            bookingSlot.setBooking(savedBooking);
+            bookingSlot.setTimeSlot(targetSlot);
+            bookingSlotRepository.save(bookingSlot);
+        }
+
+        return new BookingResponse(savedBooking);
+    }
+
+    /* =========================================================================
+     * PHẦN 4: PHƯƠNG THỨC BỔ TRỢ RIÊNG TƯ (PRIVATE HELPER)
+     * ========================================================================= */
+
+    /**
+     * Hàm dùng chung để quét chuỗi ca con và ném lỗi quá tải bằng dữ liệu của BookingSlot
+     */
+    private List<TimeSlot> validateAndGetChainSlots(LocalDate date, TimeSlot startSlot, WashService washService) {
+        int slotsNeeded = (int) Math.ceil((double) washService.getDurationMinutes() / 60);
+
+        List<TimeSlot> allActiveSlots = timeSlotRepository.findByIsActiveTrue();
+        allActiveSlots.sort(Comparator.comparing(TimeSlot::getStartTime));
+
+        int startIndex = allActiveSlots.indexOf(startSlot);
+
+        // Nếu không tìm thấy vị trí ca hoặc chuỗi ca kéo dài vượt quá giờ đóng cửa của tiệm
+        if (startIndex == -1 || startIndex + slotsNeeded > allActiveSlots.size()) {
+            throw new RuntimeException("Not enough operating hours left in the day for this service duration (" + washService.getDurationMinutes() + " mins).");
+        }
+
+        List<TimeSlot> slotsToReserve = new ArrayList<>();
+
+        // Quét và gom các ca con cần giữ chỗ
+        for (int j = 0; j < slotsNeeded; j++) {
+            TimeSlot intermediateSlot = allActiveSlots.get(startIndex + j);
+
+            // Tận dụng câu lệnh đếm COUNT siêu tốc từ database
+            long occupiedCount = bookingSlotRepository.countOccupiedVehicles(date, intermediateSlot.getSlotId());
+
+            if (occupiedCount >= intermediateSlot.getMaxCapacity()) {
+                throw new RuntimeException("The shop will be overloaded during the period: "
+                        + intermediateSlot.getSlotName() + " (" + occupiedCount + "/" + intermediateSlot.getMaxCapacity() + " occupied). "
+                        + "Please select a different starting timeslot.");
+            }
+            slotsToReserve.add(intermediateSlot);
+        }
+
+        return slotsToReserve;
     }
 }

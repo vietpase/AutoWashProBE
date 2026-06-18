@@ -83,12 +83,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/vehicles/**").hasRole("CUSTOMER")
                         .requestMatchers(HttpMethod.DELETE, "/api/vehicles/**").hasRole("CUSTOMER")
 
+                        //Redeem
+                        .requestMatchers(HttpMethod.POST, "/api/rewards/customer/redeem").hasRole("CUSTOMER")
+                        .requestMatchers(HttpMethod.GET,"/api/rewards/customer/unused/**").hasRole("CUSTOMER")
+                        .requestMatchers(HttpMethod.GET,"/api/rewards/customer/history/**").hasRole("CUSTOMER")
+                        .requestMatchers(HttpMethod.GET,"/api/rewards/customer/catalog/**").hasRole("CUSTOMER")
+
                         //reward
                         .requestMatchers("/api/rewards/active").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/rewards/**").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.POST, "/api/rewards/**").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.PUT, "/api/rewards/**").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/rewards/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.POST, "/api/rewards/admin/create/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/api/rewards/admin/update/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/rewards/admin/delete/**").hasRole("MANAGER")
 
                         // Others
                         .anyRequest().authenticated()

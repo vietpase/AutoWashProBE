@@ -9,6 +9,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 
 import java.sql.Types;
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Table(name = "TimeSlot")
@@ -22,20 +23,23 @@ public class TimeSlot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer slotId;
 
-    @Column(name = "slot_name",nullable = false, columnDefinition = "NVARCHAR(255)")
+    @Column(name = "slot_name", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String slotName;
 
-    @Column(name = "start_time",nullable = false, columnDefinition = "time")
+    @Column(name = "start_time", nullable = false, columnDefinition = "time")
     @JdbcTypeCode(Types.TIME)
     private LocalTime startTime;
 
-    @Column(name = "end_time",nullable = false, columnDefinition = "time")
+    @Column(name = "end_time", nullable = false, columnDefinition = "time")
     @JdbcTypeCode(Types.TIME)
     private LocalTime endTime;
 
     @Column(name = "max_capacity", nullable = false)
     private Integer maxCapacity;
 
-    @Column(name = "is_active",nullable = false)
-    private Boolean isActive=true;
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
+    @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
+    private List<BookingSlot> bookingSlots;
 }

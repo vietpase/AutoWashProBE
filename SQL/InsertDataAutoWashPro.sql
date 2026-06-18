@@ -125,71 +125,44 @@
 	(N'Giảm ngay 300.000đ khi sử dụng dịch vụ dọn dẹp nội thất chuyên sâu.', 300000.00, 1, 250, N'Voucher 300k Vệ sinh nội thất', 2),
 	(N'Voucher giảm 100% dịch vụ phủ nano hiệu ứng lá sen chống bám nước kính lái trị giá 500k.', 500000.00, 1, 450, N'Combo Phủ Ceramic kính lái', 9);
 		
-
-
-
-
-
-
-	-- 3. Perks
-	--INSERT INTO [dbo].[perk] (perk_name, discount_percent, free_service, add_on_item)
-	--VALUES 
-	--(N'Giảm giá 5%', 5, NULL, NULL),
-	--(N'Sáp miễn phí', 0, N'Sáp bóng', NULL),
-	--(N'Tặng vệ sinh nội thất', 0, NULL, N'Vệ sinh nội thất');
-	
-	-- Gán perks cho tier
-	-- Silver: Giảm 5%
-	--INSERT INTO [dbo].[tier_perk] (tier_id, perk_id) VALUES (2, 1);
-	-- Gold: Giảm 5% + Sáp miễn phí
-	--INSERT INTO  [dbo].[tier_perk](tier_id, perk_id) VALUES (3, 1), (3, 2);
-	-- Platinum: tất cả perks
-	--INSERT INTO [dbo].[tier_perk](tier_id, perk_id) VALUES (4, 1), (4, 2), (4, 3);
-
-	-- 4. Khách hàng
-	--INSERT INTO [dbo].[customer](full_name, phone_number, email, tier_id, current_points)
-	--VALUES 
-	--(N'Nguyễn Văn A', '0901234567', 'vana@gmail.com', 1, 100),
-	--(N'Trần Thị B',   '0912345678', 'thib@gmail.com', 2, 500);
-
-	-- 5. Phương tiện
-	--INSERT INTO [dbo].[vehicle] (customer_id, license_plate, vehicle_type, brand, color)
-	--VALUES 
-	--(1, '59A-12345', 'Motorbike', 'Honda', 'Black'),
-	--(2, '61B-67890', 'Motorbike', 'Yamaha', 'Red');
-
-	-- 6. Đặt lịch
-	--INSERT INTO  [dbo].[booking](vehicle_id, booking_date, booking_time, service_type, status, priority_level, tier_id_at_booking)
-	--VALUES 
-	--(1, '2026-05-20', '09:00', N'Rửa cao cấp', 'Pending', 1, 1),
-	--(2, '2026-05-20', '10:00', N'Rửa toàn diện', 'Confirmed', 2, 2);
-
-	-- 7. Lịch sử rửa
-	--INSERT INTO [dbo].[wash_history](booking_id, amount_paid, points_earned, points_used, perk_applied)
-	--VALUES 
-	--(1, 120000, 12, 0, N'Không'),
-	--(2, 200000, 20, 50, N'Giảm 5% (Silver)');
-
-	-- 8. Giao dịch điểm
-	--INSERT INTO [dbo].[loyalty_point] (customer_id, wash_id, points_change, transaction_type, expiry_date)
-	--VALUES 
-	--(1, 1,  12, 'Earn', '2027-05-20'),
-	--(2, 2, -50, 'Redeem', NULL);
-
-	-- 9. Khuyến mãi (admin tạo)
-	--INSERT INTO [dbo].[promotion] (title, description, min_tier_id, discount_percent, start_date, end_date, status, created_by_admin_id)
-	--VALUES (N'Ưu đãi tháng 5', N'Giảm 10% cho khách Silver trở lên', 2, 10, '2026-05-01', '2026-05-31', 'Active', 1);
-
-	-- 10. Danh mục đổi điểm (admin tạo)
-	--INSERT INTO [dbo].[reward_catalog](reward_name, points_required, discount_amount, free_wash, created_by_admin_id)
-	--VALUES 
-	--(N'Giảm 10.000đ', 100, 10000, 0, 1),
-	--(N'Rửa xe miễn phí', 300, 0, 1, 1);
-
-	-- 11. Lịch sử đổi điểm
-	--INSERT INTO [dbo].[reward_redemption](customer_id, reward_id, points_used)
-	--VALUES (2, 1, 100);
-
+	--Customer
+	INSERT INTO	[dbo].[customer](
+		create_at, 
+		current_points, 
+		email, 
+		full_name, 
+		last_tier_review, 
+		password, 
+		phone_number, 
+		total_spend, 
+		total_visits, 
+		tier_id
+	) VALUES
+	(
+		'2026-01-10', 150, 'vietpa@gmail.com', N'Phạm Anh Việt', 
+		NULL, '$2a$10$E2upv7arXmp3q0gHXW4Y8O9FwBNDmS.N9Ww1K/z6M.X8DkGgH3E2i', 
+		'0912345678', 1250000.00, 5, 1
+	),
+	(
+		'2026-02-15', 500, 'longnh@gmail.com', N'Nguyễn Hoàng Long', 
+		NULL, '$2a$10$E2upv7arXmp3q0gHXW4Y8O9FwBNDmS.N9Ww1K/z6M.X8DkGgH3E2i', 
+		'0987654321', 4200000.00, 12, 2
+	),
+	(
+		'2026-03-01', 1200, 'phuongttm@gmail.com', N'Trần Thị Mai Phương', 
+		NULL, '$2a$10$E2upv7arXmp3q0gHXW4Y8O9FwBNDmS.N9Ww1K/z6M.X8DkGgH3E2i', 
+		'0905123456', 9500000.00, 25, 3
+	),
+	(
+		'2026-06-17', 0, 'quanlm@gmail.com', N'Lê Minh Quân', 
+		NULL, NULL, 
+		'0934567890', 0.00, 0, 1
+	),
+	(
+		'2026-06-10', 45, 'thaodt@gmail.com', N'Đặng Thu Thảo', 
+		NULL, '$2a$10$E2upv7arXmp3q0gHXW4Y8O9FwBNDmS.N9Ww1K/z6M.X8DkGgH3E2i', 
+		'0978123456', 350000.00, 1, 1
+	);
 
 
 	-- ============================================================
@@ -203,15 +176,13 @@
 	--select * from [dbo].[time_slot]		--data inserted
 	--select * from [dbo].[vehicle]
 	--select * from [dbo].[reward_catalog]
-
-
-
+	--select * from [dbo].[booking_slot]
 	--select * from [dbo].[booking]
+	--select * from [dbo].[reward_redemption]
 	
 	--select * from [dbo].[customer_monthly_stats]
 	--select * from [dbo].[loyalty_point]
 	 -- data inserted
-	--select * from [dbo].[reward_redemption]
 	
 	--select * from [dbo].[wash_history]
 	
