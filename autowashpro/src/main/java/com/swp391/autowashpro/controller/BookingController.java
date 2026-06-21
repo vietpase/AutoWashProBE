@@ -1,14 +1,10 @@
 package com.swp391.autowashpro.controller;
 
-import com.swp391.autowashpro.dto.AvailableSlotResponse;
-import com.swp391.autowashpro.dto.BookingRequest;
-import com.swp391.autowashpro.dto.BookingResponse;
-import com.swp391.autowashpro.dto.WalkInBookingRequest;
+import com.swp391.autowashpro.dto.*;
 import com.swp391.autowashpro.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +15,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/bookings")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 @Tag(name = "Booking Processing Core", description = "Endpoints handling reservations, auto price calculation, tier snapshot freezing, voucher allocation validations, and counter-staff operational workflows.")
 public class BookingController {
 
     private final BookingService bookingService;
+
+    public BookingController (BookingService bookingService) {
+        this.bookingService = bookingService;
+    }
 
     /* =========================================================================
      * PHẦN 1: ENDPOINTS DÀNH CHO GIAO DIỆN KHÁCH HÀNG (CUSTOMER SIDE)
@@ -86,5 +85,18 @@ public class BookingController {
     public ResponseEntity<BookingResponse> completeBookingAndSettlement(@PathVariable Integer bookingId) {
         BookingResponse response = bookingService.completeBookingAndPay(bookingId);
         return ResponseEntity.ok(response);
+    }
+    @GetMapping
+    @Operation(
+            summary = "Get booking List",
+            description = "Get all bookings."
+    )
+    public ResponseEntity<?> getBookingList() {
+        try{
+            List<BookingListResponse> response= bookingService.getBookingList();
+            return ResponseEntity.ok(response);
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

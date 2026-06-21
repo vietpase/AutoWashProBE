@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 @Setter
 @Getter
-public class CustomerMonthlyStats {
+public class    CustomerMonthlyStats {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -28,7 +28,7 @@ public class VehicleService {
         if (!customerRepository.existsById(customerId)) {
             throw new RuntimeException("Customer not found with ID: " + customerId);
         }
-        List<Vehicle> vehicles = vehicleRepository.findByCustomer_CustomerId(customerId);
+        List<Vehicle> vehicles = vehicleRepository.findByCustomer_CustomerIdAndIsActiveTrue(customerId);
         return vehicles.stream().map(VehicleResponse::new).toList();
     }
 
@@ -49,6 +49,11 @@ public class VehicleService {
         vehicle.setVehicleType(request.getVehicleType());
         vehicle.setBrand(request.getBrand());
         vehicle.setColor(request.getColor());
+        if(request.getIsActive()!=null){
+            vehicle.setIsActive(request.getIsActive());
+        }else{
+            vehicle.setIsActive(true);
+        }
 
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
         return new VehicleResponse(savedVehicle);
@@ -57,10 +62,10 @@ public class VehicleService {
     // Delete vehicle
     @Transactional
     public void deleteVehicle(int vehicleId) {
-        if (!vehicleRepository.existsById(vehicleId)) {
-            throw new RuntimeException("Vehicle ID does not exist in system!");
-        }
-        vehicleRepository.deleteById(vehicleId);
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(()->new RuntimeException("Vehicle ID does not exist in system!"));
+        vehicle.setIsActive(false);
+        vehicleRepository.save(vehicle);
     }
 
     // Update Vehicle
@@ -80,6 +85,11 @@ public class VehicleService {
         vehicle.setVehicleType(request.getVehicleType());
         vehicle.setBrand(request.getBrand());
         vehicle.setColor(request.getColor());
+        if(request.getIsActive()!=null){
+            vehicle.setIsActive(request.getIsActive());
+        }else{
+            vehicle.setIsActive(true);
+        }
 
         Vehicle updatedVehicle = vehicleRepository.save(vehicle);
         return new VehicleResponse(updatedVehicle);

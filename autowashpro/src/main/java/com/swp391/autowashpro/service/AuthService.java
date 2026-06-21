@@ -125,8 +125,8 @@ public class AuthService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(request.getEmail());
         message.setSubject("OTP Password Recovery Code - AutoWashPro");
-        message.setText("Hello"+customerOpt.get().getFullName()+"\n\n"+
-                "The OTP code to recover your password is:"+otp+"\n"+
+        message.setText("Hello "+customerOpt.get().getFullName()+"\n\n"+
+                "The OTP code to recover your password is: "+otp+"\n"+
                 "Please do not share this code with anyone.\n\n"+
                 "Sincerely, The AutoWashPro Team."
         );

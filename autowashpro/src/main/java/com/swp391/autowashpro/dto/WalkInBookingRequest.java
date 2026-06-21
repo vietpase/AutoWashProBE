@@ -15,7 +15,6 @@ public class WalkInBookingRequest {
     @NotBlank(message = "Phone number is required")
     private String walkInPhoneNumber;
 
-    // THÊM TRƯỜNG NÀY: Thu thập email để gửi OTP kích hoạt/reset pass sau này
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;

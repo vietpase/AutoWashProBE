@@ -3,8 +3,7 @@ package com.swp391.autowashpro.dto;
 import com.swp391.autowashpro.entity.Booking;
 import com.swp391.autowashpro.entity.BookingSlot;
 import com.swp391.autowashpro.entity.TimeSlot;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,8 +11,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
 
-@Getter
-@Setter
+@Data
 public class BookingResponse {
     private Integer bookingId;
     private LocalDate bookingDate;
@@ -48,7 +46,7 @@ public class BookingResponse {
             this.tierNameAtBooking = booking.getTierAtBooking().getTierName();
         }
 
-        // --- LOGIC THẦN THÁNH: Tự động tìm ca bắt đầu từ bảng trung gian ---
+        // --- Tự động tìm ca bắt đầu từ bảng trung gian ---
         if (booking.getBookingSlots() != null && !booking.getBookingSlots().isEmpty()) {
             booking.getBookingSlots().stream()
                     .map(BookingSlot::getTimeSlot)
