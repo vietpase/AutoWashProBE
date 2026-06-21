@@ -16,4 +16,5 @@ public class VehicleRequest {
     private String vehicleType;
     private String brand;
     private String color;
+    private Boolean isActive;
 }

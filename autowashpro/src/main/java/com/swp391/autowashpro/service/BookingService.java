@@ -1,9 +1,6 @@
 package com.swp391.autowashpro.service;
 
-import com.swp391.autowashpro.dto.AvailableSlotResponse;
-import com.swp391.autowashpro.dto.BookingRequest;
-import com.swp391.autowashpro.dto.BookingResponse;
-import com.swp391.autowashpro.dto.WalkInBookingRequest;
+import com.swp391.autowashpro.dto.*;
 import com.swp391.autowashpro.entity.*;
 import com.swp391.autowashpro.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -337,7 +334,7 @@ public class BookingService {
         // CHẶN TRÙNG LỊCH CHO LUỒNG TẠI QUẦY
         List<TimeSlot> slotsToReserve = validateAndGetChainSlots(today, startSlot, washService);
 
-        Customer customer = customerRepository.findByPhoneNumber(request.getWalkInPhoneNumber())
+        Customer customer = customerRepository.findByEmail(request.getEmail())
                 .orElseGet(() -> {
                     Customer newCust = new Customer();
                     newCust.setFullName(request.getWalkInCustomerName());
@@ -438,5 +435,13 @@ public class BookingService {
         }
 
         return slotsToReserve;
+    }
+
+    /* =========================================================================
+     * PHẦN 5: LẤY DANH SÁCH BOOKING (MANAGER OPERATIONS)
+     * ========================================================================= */
+    public List<BookingListResponse> getBookingList(){
+        List<BookingListResponse> bookingList = bookingRepository.findAll().stream().map(BookingListResponse::new).toList();
+        return bookingList;
     }
 }

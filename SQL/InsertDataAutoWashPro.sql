@@ -139,30 +139,27 @@
 		tier_id
 	) VALUES
 	(
-		'2026-01-10', 150, 'vietpa@gmail.com', N'Phạm Anh Việt', 
-		NULL, '$2a$10$E2upv7arXmp3q0gHXW4Y8O9FwBNDmS.N9Ww1K/z6M.X8DkGgH3E2i', 
-		'0912345678', 1250000.00, 5, 1
+		'2026-06-22', NULL, 'vietpase@gmail.com', N'Harry Potter', 
+		NULL, '$2a$12$CghKjljciIK2y.ZU4RdKOu2Ck0oyE6dcV23uALEcrg7I41DVhw04u', 
+		'0912345678', NULL, NULL, 1
 	),
 	(
-		'2026-02-15', 500, 'longnh@gmail.com', N'Nguyễn Hoàng Long', 
-		NULL, '$2a$10$E2upv7arXmp3q0gHXW4Y8O9FwBNDmS.N9Ww1K/z6M.X8DkGgH3E2i', 
-		'0987654321', 4200000.00, 12, 2
-	),
-	(
-		'2026-03-01', 1200, 'phuongttm@gmail.com', N'Trần Thị Mai Phương', 
-		NULL, '$2a$10$E2upv7arXmp3q0gHXW4Y8O9FwBNDmS.N9Ww1K/z6M.X8DkGgH3E2i', 
-		'0905123456', 9500000.00, 25, 3
-	),
-	(
-		'2026-06-17', 0, 'quanlm@gmail.com', N'Lê Minh Quân', 
-		NULL, NULL, 
-		'0934567890', 0.00, 0, 1
-	),
-	(
-		'2026-06-10', 45, 'thaodt@gmail.com', N'Đặng Thu Thảo', 
-		NULL, '$2a$10$E2upv7arXmp3q0gHXW4Y8O9FwBNDmS.N9Ww1K/z6M.X8DkGgH3E2i', 
-		'0978123456', 350000.00, 1, 1
+		'2026-02-15', NULL, 'dreamlatern0410@gmail.com', N'Bánh Đậu Xanh', 
+		NULL, '$2a$12$PSfDb1TUcqTzq5wF/SDgqefRtg8ayd1lpfWqx8jXXVB8itqk8Vw/y', 
+		'0987654321', NULL, NULL, 1
 	);
+	--Vehicle
+	INSERT INTO vehicle
+	(brand, color, is_active, license_plate, vehicle_type, customer_id)
+	VALUES
+	('Toyota Corolla Cross',  'White', 1, '60A-12345', 'Sedan',     1),
+	('Honda HRV',   'Black', 1, '51F-67890', 'SUV',       1),
+	('VinFast VF9', 'Blue',  1, '50H-11111', 'Electric',  1),
+
+	('Hyundai Santafe', 'Red',   1, '61A-22222', 'Hatchback', 2),
+	('Kia Morning',     'Gray',  1, '72B-33333', 'SUV',       2),
+	('Mazda Cx5',   'White', 0, '43C-44444', 'Sedan',     2);
+
 
 
 	-- ============================================================
@@ -181,15 +178,17 @@
 	--select * from [dbo].[reward_redemption]
 	
 	--select * from [dbo].[customer_monthly_stats]
-	--select * from [dbo].[loyalty_point]
-	 -- data inserted
-	
+	--select * from [dbo].[loyalty_point]	
 	--select * from [dbo].[wash_history]
 	
 	-- ============================================================
 	-- CREATE DATABASE
 	-- ============================================================
 	--create database AutoWashPro
+	-- ============================================================
+	-- DELETE DATABASE
+	-- ============================================================
+	--delete database AutoWashPro
 
 	-- ============================================================
 	-- DELETE OPERATION
@@ -197,52 +196,25 @@
 	--DELETE FROM [dbo].[customer]
 	--WHERE customer_id IN (3,4,5,6);
 	--DELETE FROM [dbo].[vehicle]
-	--WHERE vehicle_id IN (1,4,5,6);
+	--WHERE vehicle_id IN (8);
 	
 	-- ============================================================
 	-- UPDATE OPERATION
 	-- ============================================================
+	
+	--vehicle
+	--UPDATE [dbo].[vehicle]
+	--SET brand = 'Toyota',
+	--	color = 'Black',
+	--	is_active = 1,
+	--	license_plate = '60A-99999',
+	--	vehicle_type = 'SUV'
+	--WHERE vehicle_id = 1;
+
+
 	--UPDATE [dbo].[admin_account] 
 	--SET full_name = N'Quản trị viên chính' 
 	--WHERE admin_id = 15;	
 
 
 
-
-
---{
-  --"loginKey": "0123456789",
-  --"password": "harrypotter"
---}
---{
-  --"loginKey": "0123456888",
-  --"password": "tuan9"
---}
---{
-  --"phoneNumber": "0123456999",
-  --"password": "levana123",
---}
-
---INSERT INTO [dbo].[admin_account] (full_name, password, role, username)
---VALUES 
---(
-  --N'Quản trị viên chính', 
-    --'$2a$12$d6cQeET10X95jiZAPxSFVOY/bQrBYQSfysPwshECiwBfWRufTMQfq', -- Mật khẩu gốc là 123456
-    --'Manager', 
-    --'admin'
---),
---(
-    --N'Nhân viên CSKH', 
-    --'$2a$12$gm0hSj8wYkeeWto.heqOu.Rdsyippz2Vncc0vG67YKe2FIRxpsO0m', -- Mật khẩu gốc là 123456
-    --'Staff', 
-    --'staff1'
---);
-
-
-
-
---username: 0123456999
---password: tester123
-
-
---create database AutoWashPro
