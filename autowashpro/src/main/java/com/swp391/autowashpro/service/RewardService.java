@@ -5,29 +5,37 @@ import com.swp391.autowashpro.dto.RewardCatalogRequest;
 import com.swp391.autowashpro.dto.RewardCatalogResponse;
 import com.swp391.autowashpro.dto.RewardRedemptionResponse;
 import com.swp391.autowashpro.entity.Customer;
+import com.swp391.autowashpro.entity.LoyaltyPoint;
 import com.swp391.autowashpro.entity.RewardCatalog;
 import com.swp391.autowashpro.entity.RewardRedemption;
 import com.swp391.autowashpro.repository.CustomerRepository;
+import com.swp391.autowashpro.repository.LoyaltyPointRepository;
 import com.swp391.autowashpro.repository.RewardCatalogRepository;
 import com.swp391.autowashpro.repository.RewardRedemptionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
 public class RewardService {
 
+    private static final ZoneId VIETNAM_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
+
     private final RewardCatalogRepository rewardCatalogRepository;
     private final RewardRedemptionRepository rewardRedemptionRepository;
     private final CustomerRepository customerRepository;
+    private final LoyaltyPointRepository loyaltyPointRepository;
 
     public RewardService(RewardCatalogRepository rewardCatalogRepository,
                          RewardRedemptionRepository rewardRedemptionRepository,
-                         CustomerRepository customerRepository) {
+                         CustomerRepository customerRepository,
+                         LoyaltyPointRepository loyaltyPointRepository) {
         this.rewardCatalogRepository = rewardCatalogRepository;
         this.rewardRedemptionRepository = rewardRedemptionRepository;
         this.customerRepository = customerRepository;
+        this.loyaltyPointRepository = loyaltyPointRepository;
     }
 
     // ==========================================
@@ -103,6 +111,7 @@ public class RewardService {
     public RewardRedemptionResponse redeemRewardPoints(RedeemRequest request) {
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
+
         RewardCatalog reward = rewardCatalogRepository.findById(request.getRewardId())
                 .orElseThrow(() -> new RuntimeException("Reward item not found"));
 
@@ -110,7 +119,7 @@ public class RewardService {
             throw new RuntimeException("This reward is currently disabled.");
         }
 
-        if (reward.getStockQuantity() < request.getQuantity()) {
+        if (reward.getStockQuantity() < 1) {
             throw new RuntimeException("Out of stock! Only " + reward.getStockQuantity() + " items left.");
         }
 
@@ -122,10 +131,18 @@ public class RewardService {
 
         // Khấu trừ điểm của khách và tồn kho quà
         customer.setCurrentPoints(customer.getCurrentPoints()- totalPointsNeeded);
-        reward.setStockQuantity(reward.getStockQuantity() - request.getQuantity());
+        reward.setStockQuantity(reward.getStockQuantity() - 1);
 
         customerRepository.save(customer);
         rewardCatalogRepository.save(reward);
+
+        // Ghi nhận Log biến động điểm âm (REDEEM_REWARD) phục vụ đối soát tài khoản khách
+        LoyaltyPoint pointLog = new LoyaltyPoint();
+        pointLog.setCustomer(customer);
+        pointLog.setPointsChange(-totalPointsNeeded);
+        pointLog.setTransactionType("REDEEM_REWARD");
+        pointLog.setCreatedAt(LocalDateTime.now(VIETNAM_ZONE));
+        loyaltyPointRepository.save(pointLog);
 
         // Ghi nhận vào lịch sử đổi quà
         RewardRedemption redemption = new RewardRedemption();
