@@ -8,10 +8,12 @@ import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/bookings")
@@ -47,8 +49,8 @@ public class BookingController {
             summary = "Place a new car wash reservation",
             description = "Creates a slot booking. Evaluates tier priority window, cross-checks vehicle ownership, calculates final price using tier dynamic pricing, promotion discounts, and checks multiple loyalty voucher limits."
     )
-    public ResponseEntity<BookingResponse> createOnlineBooking(@Valid @RequestBody BookingRequest request) {
-        BookingResponse response = bookingService.createBooking(request);
+    public ResponseEntity<BookingDetailPriceResponse> createOnlineBooking(@Valid @RequestBody BookingRequest request) {
+        BookingDetailPriceResponse response = bookingService.createBooking(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -58,16 +60,18 @@ public class BookingController {
      * ========================================================================= */
 
     @PostMapping("/walk-in")
+    @PreAuthorize("hasAnyRole('MANAGER','STAFF')")
     @Operation(
             summary = "Create a walk-in booking at the counter",
             description = "Allows counter staff to instantly register walk-in customers and their vehicles. Bypasses advanced booking windows but strictly validates real-time capacity chains before forcing the booking into 'Confirmed' status."
     )
-    public ResponseEntity<BookingResponse> createWalkInBooking(@Valid @RequestBody WalkInBookingRequest request) {
-        BookingResponse response = bookingService.createWalkInBooking(request);
+    public ResponseEntity<BookingDetailPriceResponse> createWalkInBooking(@Valid @RequestBody WalkInBookingRequest request) {
+        BookingDetailPriceResponse response = bookingService.createWalkInBooking(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/{bookingId}/confirm-arrival")
+    @PreAuthorize("hasAnyRole('MANAGER','STAFF')")
     @Operation(
             summary = "Confirm customer vehicle arrival",
             description = "Updates the booking status from 'Pending' to 'Confirmed' when the customer physically arrives at the shop, preparing the vehicle for the operational washing queue."
@@ -78,6 +82,7 @@ public class BookingController {
     }
 
     @PutMapping("/{bookingId}/complete")
+    @PreAuthorize("hasAnyRole('MANAGER','STAFF')")
     @Operation(
             summary = "Complete wash service and finalize payment settlement",
             description = "Finalizes the booking by shifting status to 'Completed'. Automatically creates wash history logs, calculates and triggers loyalty point accumulation based on dynamic tier multipliers, and updates customer monthly statistics."
@@ -96,6 +101,17 @@ public class BookingController {
             List<BookingListResponse> response= bookingService.getBookingList();
             return ResponseEntity.ok(response);
         }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('MANAGER','STAFF')")
+    public ResponseEntity<?> cancelBooking(@PathVariable("id") Integer bookingId) {
+        try {
+            bookingService.cancelBooking(bookingId);
+            return ResponseEntity.ok("Booking has been cancelled successfully");
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

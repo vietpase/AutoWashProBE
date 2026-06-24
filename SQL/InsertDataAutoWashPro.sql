@@ -176,7 +176,7 @@
 	--select * from [dbo].[booking_slot]
 	--select * from [dbo].[booking]
 	--select * from [dbo].[reward_redemption]
-	
+		
 	--select * from [dbo].[customer_monthly_stats]
 	--select * from [dbo].[loyalty_point]	
 	--select * from [dbo].[wash_history]
@@ -193,10 +193,9 @@
 	-- ============================================================
 	-- DELETE OPERATION
 	-- ============================================================
-	--DELETE FROM [dbo].[customer]
-	--WHERE customer_id IN (3,4,5,6);
-	--DELETE FROM [dbo].[vehicle]
-	--WHERE vehicle_id IN (8);
+	--DELETE FROM [dbo].[customer]WHERE customer_id IN (3,4,5,6);
+	--DELETE FROM [dbo].[vehicle]WHERE vehicle_id IN (8);
+	--DELETE FROM [dbo].[promotion] WHERE [promo_id] IN (5);
 	
 	-- ============================================================
 	-- UPDATE OPERATION

@@ -11,11 +11,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.StringJoiner;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +34,9 @@ public class BookingService {
     private final WashHistoryRepository washHistoryRepository;
     private final CustomerMonthlyStatsRepository customerMonthlyStatsRepository;
     private final LoyaltyTierRepository loyaltyTierRepository;
+
+    private static final java.time.format.DateTimeFormatter YYYYMM_FORMATTER = java.time.format.DateTimeFormatter.ofPattern("yyyyMM");
+    private static final java.time.ZoneId VIETNAM_ZONE = java.time.ZoneId.of("Asia/Ho_Chi_Minh");
 
     /* =========================================================================
      * PHẦN 1: API DÀNH CHO GIAO DIỆN KHÁCH HÀNG (DISPLAY & UI)
@@ -105,7 +108,7 @@ public class BookingService {
      * Khách hàng đặt lịch Online từ Web (Chỉ nhận vào 1 slotId bắt đầu dạng Single-Select)
      */
     @Transactional
-    public BookingResponse createBooking(BookingRequest request) {
+    public BookingDetailPriceResponse createBooking(BookingRequest request) {
         // 1. Kiểm tra thông tin Customer & Rank hiện tại
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found."));
@@ -141,25 +144,49 @@ public class BookingService {
         // 6. THUẬT TOÁN ĐẾM CHỖ CHUỖI MẮT XÍCH QUA BẢNG TRUNG GIAN (Bảo vệ Backend)
         List<TimeSlot> slotsToReserve = validateAndGetChainSlots(request.getBookingDate(), startSlot, washService);
 
+
+        //AddOn
+        StringJoiner addOnJoiner = new StringJoiner(", ");
+
         // --- ENGINE TÍNH TIỀN ---
         BigDecimal basePrice = washService.getPrice();
         BigDecimal discountFromTier = BigDecimal.ZERO;
         BigDecimal discountFromPromo = BigDecimal.ZERO;
         BigDecimal discountFromVouchers = BigDecimal.ZERO;
 
+        // Tính giảm giá theo Tier
         if (currentTier.getDiscountPercent() > 0) {
-            BigDecimal multiplier = BigDecimal.valueOf(currentTier.getDiscountPercent()).divide(BigDecimal.valueOf(100));
+            BigDecimal multiplier = BigDecimal.valueOf(currentTier.getDiscountPercent())
+                    .divide(BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP);
             discountFromTier = basePrice.multiply(multiplier);
         }
 
+        // Tính giảm giá theo Campaign công khai (Promotion)
         Promotion promotion = null;
         if (request.getPromotionId() != null) {
             promotion = promotionRepository.findById(request.getPromotionId()).orElse(null);
+            if(promotion.getLoyaltyTier() != null &&
+                    !promotion.getLoyaltyTier().getTierId().equals(currentTier.getTierId()) ){
+                throw new RuntimeException("This promotion is only available for " + promotion.getLoyaltyTier().getTierName() + " members.");
+            }
+
             if (promotion != null && promotion.getIsActive()) {
-                discountFromPromo = BigDecimal.valueOf(promotion.getDiscountAmount());
+                if (promotion.getDiscountAmount() <= 100) {
+                    BigDecimal promoMultiplier = BigDecimal.valueOf(promotion.getDiscountAmount())
+                            .divide(BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP);
+                    discountFromPromo = basePrice.multiply(promoMultiplier);
+                } else {
+                    discountFromPromo = BigDecimal.valueOf(promotion.getDiscountAmount());
+                }
+
+                // Nếu không có giảm giá thì mới thêm mô tả vào hóa đơn chi tiết
+                if (discountFromPromo.compareTo(BigDecimal.ZERO) == 0) {
+                    addOnJoiner.add(promotion.getDescription());
+                }
             }
         }
 
+        // Tính giảm giá theo đống Voucher cá nhân của khách (RewardRedemption)
         List<RewardRedemption> redemptionsToApply = new ArrayList<>();
         if (request.getAppliedRedemptionIds() != null && !request.getAppliedRedemptionIds().isEmpty()) {
             for (Integer redemptionId : request.getAppliedRedemptionIds()) {
@@ -177,7 +204,21 @@ public class BookingService {
                     throw new RuntimeException("Voucher has already been used in another booking.");
                 }
 
-                discountFromVouchers = discountFromVouchers.add(redemption.getDiscountAmountAtRedemption());
+                BigDecimal currentVoucherDiscount = BigDecimal.ZERO;
+                if (redemption.getDiscountAmountAtRedemption().doubleValue() <= 100) {
+                    BigDecimal voucherMultiplier = redemption.getDiscountAmountAtRedemption()
+                            .divide(BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP);
+                    currentVoucherDiscount = basePrice.multiply(voucherMultiplier);
+                } else {
+                    currentVoucherDiscount = redemption.getDiscountAmountAtRedemption();
+                }
+
+                // Cộng dồn tiền giảm giá thay vì gán đè
+                discountFromVouchers = discountFromVouchers.add(currentVoucherDiscount);
+
+                if (currentVoucherDiscount.compareTo(BigDecimal.ZERO) == 0) {
+                    addOnJoiner.add(redemption.getRewardNameAtRedemption());
+                }
                 redemptionsToApply.add(redemption);
             }
         }
@@ -217,7 +258,29 @@ public class BookingService {
             rewardRedemptionRepository.save(redemption);
         }
 
-        return new BookingResponse(savedBooking);
+
+        // 10. TÍNH ĐIỂM TÍCH LŨY DỰ KIẾN (Bảo vệ an toàn phép chia)
+        BigDecimal basePoints = finalPrice.divide(BigDecimal.valueOf(1000), 2, java.math.RoundingMode.HALF_UP);
+        BigDecimal multiplier = BigDecimal.valueOf(customer.getLoyaltyTier().getPointMultiplier());
+
+        Integer totalPointEarned = basePoints.multiply(multiplier)
+                .setScale(0, java.math.RoundingMode.HALF_UP)
+                .intValue();
+
+        // Chuyển kết quả StringJoiner thành chuỗi String hoàn chỉnh, nếu trống thì trả về "NONE"
+        String finalAddOn = addOnJoiner.length() > 0 ? addOnJoiner.toString() : "NONE";
+
+        // 11. Trả về Response chi tiết
+        BookingDetailPriceResponse response = new BookingDetailPriceResponse();
+        response.setBasePrice(basePrice);
+        response.setDiscountFromTier(discountFromTier);
+        response.setDiscountFromPromo(discountFromPromo);
+        response.setDiscountFromReward(discountFromVouchers);
+        response.setAddOn(finalAddOn);
+        response.setTotalPointEarned(totalPointEarned);
+        response.setFinalPrice(finalPrice);
+
+        return response;
     }
 
 
@@ -226,74 +289,88 @@ public class BookingService {
      * ========================================================================= */
 
     /**
-     * Staff Luồng 1: Xác nhận khách đã đến tiệm (Pending -> Confirmed)
+     * Staff Luồng 1: Xác nhận khách đã đến tiệm (PENDING -> CONFIRMED)
      */
     @Transactional
     public BookingResponse confirmArrival(Integer bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found."));
 
-        if (!booking.getStatus().equalsIgnoreCase("Pending")) {
-            throw new RuntimeException("Only 'Pending' bookings can be confirmed.");
+        if (!"PENDING".equalsIgnoreCase(booking.getStatus())) {
+            throw new RuntimeException("Only 'PENDING' bookings can be CONFIRMED.");
         }
 
-        booking.setStatus("Confirmed");
+        booking.setStatus("CONFIRMED");
         return new BookingResponse(bookingRepository.save(booking));
     }
 
     /**
-     * Staff Luồng 2: Rửa xong, Thu tiền, Tích điểm & Cập nhật thống kê tháng (Confirmed -> Completed)
+     * Staff Luồng 2: Rửa xong, Thu tiền, Tích điểm & Cập nhật thống kê tháng (CONFIRMED -> COMPLETED)
      */
     @Transactional
     public BookingResponse completeBookingAndPay(Integer bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found."));
 
-        if (!booking.getStatus().equalsIgnoreCase("Confirmed")) {
-            throw new RuntimeException("Booking must be 'Confirmed' to complete.");
+        if (!"CONFIRMED".equalsIgnoreCase(booking.getStatus())) {
+            throw new RuntimeException("Booking must be 'CONFIRMED' to complete.");
         }
 
-        booking.setStatus("Completed");
+        booking.setStatus("COMPLETED");
         Booking savedBooking = bookingRepository.save(booking);
 
         int totalPointsUsed = 0;
         if (savedBooking.getRewardRedemptions() != null && !savedBooking.getRewardRedemptions().isEmpty()) {
             totalPointsUsed = savedBooking.getRewardRedemptions().stream()
-                    .mapToInt(RewardRedemption::getPointsUsed)
+                    .mapToInt(r -> r.getPointsUsed() != null ? r.getPointsUsed() : 0)
                     .sum();
         }
 
         BigDecimal finalPrice = savedBooking.getTotalPrice();
-        int basePoints = finalPrice.divide(BigDecimal.valueOf(1000)).intValue();
-        double multiplier = savedBooking.getTierAtBooking().getPointMultiplier();
-        int totalPointsEarned = (int) Math.round(basePoints * multiplier);
+        BigDecimal basePoints = finalPrice.divide(BigDecimal.valueOf(1000), 2, java.math.RoundingMode.HALF_UP);
+        BigDecimal multiplier = BigDecimal.valueOf(savedBooking.getTierAtBooking().getPointMultiplier());
 
+        int totalPointsEarned = basePoints.multiply(multiplier)
+                .setScale(0, java.math.RoundingMode.HALF_UP)
+                .intValue();
+
+        // Lưu lịch sử rửa xe
         WashHistory washHistory = new WashHistory();
-        washHistory.setWashDate(LocalDateTime.now());
+        washHistory.setWashDate(LocalDateTime.now(VIETNAM_ZONE));
         washHistory.setAmountPaid(finalPrice);
         washHistory.setPointsEarned(totalPointsEarned);
         washHistory.setPointsUsed(totalPointsUsed);
         washHistory.setBooking(savedBooking);
         WashHistory savedWashHistory = washHistoryRepository.save(washHistory);
 
+        // Cập nhật thông tin khách hàng
         Customer customer = savedBooking.getVehicle().getCustomer();
+
+        //Nếu trường số tiền hoặc điểm tích lũy cũ bị NULL trong DB thì tự gán bằng 0 trước khi cộng
+        if (customer.getTotalSpend() == null) customer.setTotalSpend(BigDecimal.ZERO);
+        if (customer.getCurrentPoints() == null) customer.setCurrentPoints(0);
+        if (customer.getTotalVisits() == null) customer.setTotalVisits(0);
+
         customer.setTotalSpend(customer.getTotalSpend().add(finalPrice));
         customer.setTotalVisits(customer.getTotalVisits() + 1);
+        // Cộng điểm tích lũy mới
         customer.setCurrentPoints(customer.getCurrentPoints() + totalPointsEarned);
         customerRepository.save(customer);
 
+        // Ghi log biến động điểm nếu có điểm thưởng phát sinh
         if (totalPointsEarned > 0) {
             LoyaltyPoint pointLog = new LoyaltyPoint();
             pointLog.setCustomer(customer);
             pointLog.setPointsChange(totalPointsEarned);
             pointLog.setTransactionType("EARN_BOOKING");
-            pointLog.setCreatedAt(LocalDateTime.now());
-            pointLog.setExpiryDate(LocalDate.now().plusYears(1));
+            pointLog.setCreatedAt(LocalDateTime.now(VIETNAM_ZONE));
+            pointLog.setExpiryDate(LocalDate.now(VIETNAM_ZONE).plusMonths(1));
             pointLog.setWashHistory(savedWashHistory);
             loyaltyPointRepository.save(pointLog);
         }
 
-        String currentYearMonth = YearMonth.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+
+        String currentYearMonth = YearMonth.now(VIETNAM_ZONE).format(YYYYMM_FORMATTER);
         CustomerMonthlyStats monthlyStats = customerMonthlyStatsRepository
                 .findByCustomerCustomerIdAndYearMonth(customer.getCustomerId(), currentYearMonth)
                 .orElseGet(() -> {
@@ -304,6 +381,9 @@ public class BookingService {
                     newStats.setMonthlyVisits(0);
                     return newStats;
                 });
+
+        if (monthlyStats.getMonthlySpend() == null) monthlyStats.setMonthlySpend(BigDecimal.ZERO);
+        if (monthlyStats.getMonthlyVisits() == null) monthlyStats.setMonthlyVisits(0);
 
         monthlyStats.setMonthlySpend(monthlyStats.getMonthlySpend().add(finalPrice));
         monthlyStats.setMonthlyVisits(monthlyStats.getMonthlyVisits() + 1);
@@ -316,24 +396,27 @@ public class BookingService {
      * Staff Luồng 3: Đặt lịch trực tiếp tại quầy cho Khách vãng lai Walk-in
      */
     @Transactional
-    public BookingResponse createWalkInBooking(WalkInBookingRequest request) {
+    public BookingDetailPriceResponse createWalkInBooking(WalkInBookingRequest request) {
         LocalDate today = LocalDate.now();
 
+        // 1. KIỂM TRA KHUNG GIỜ (TIMESLOT)
         TimeSlot startSlot = timeSlotRepository.findById(request.getSlotId())
                 .orElseThrow(() -> new RuntimeException("Time Slot not found."));
         if (!startSlot.getIsActive()) {
             throw new RuntimeException("This timeslot is currently closed.");
         }
 
+        // 2. KIỂM TRA GÓI DỊCH VỤ (WASH SERVICE)
         WashService washService = washServiceRepository.findById(request.getWashServiceId())
                 .orElseThrow(() -> new RuntimeException("Wash service not found."));
         if (!washService.getIsActive()) {
             throw new RuntimeException("This wash service is deactivated.");
         }
 
-        // CHẶN TRÙNG LỊCH CHO LUỒNG TẠI QUẦY
+        // CHẶN TRÙNG LỊCH CHO LUỒNG TẠI QUẦY (Lấy chuỗi slot cần giữ)
         List<TimeSlot> slotsToReserve = validateAndGetChainSlots(today, startSlot, washService);
 
+        // 3. ĐỊNH DANH KHÁCH HÀNG QUA EMAIL
         Customer customer = customerRepository.findByEmail(request.getEmail())
                 .orElseGet(() -> {
                     Customer newCust = new Customer();
@@ -341,6 +424,7 @@ public class BookingService {
                     newCust.setPhoneNumber(request.getWalkInPhoneNumber());
                     newCust.setEmail(request.getEmail());
                     newCust.setPassword("WALK_IN_USER_NO_PASSWORD");
+
                     LoyaltyTier defaultTier = loyaltyTierRepository.findById(1)
                             .orElseThrow(() -> new RuntimeException("Default Loyalty Tier (ID=1) not found in DB."));
                     newCust.setLoyaltyTier(defaultTier);
@@ -350,6 +434,7 @@ public class BookingService {
                     return customerRepository.save(newCust);
                 });
 
+        // 4. ĐỊNH DANH XE
         Vehicle vehicle = vehicleRepository.findByLicensePlate(request.getLicensePlate())
                 .orElseGet(() -> {
                     Vehicle newVehicle = new Vehicle();
@@ -358,26 +443,62 @@ public class BookingService {
                     newVehicle.setBrand(request.getBrand());
                     newVehicle.setColor(request.getColor());
                     newVehicle.setCustomer(customer);
+                    newVehicle.setIsActive(true);
                     return vehicleRepository.save(newVehicle);
                 });
 
+        boolean needUpdateVehicle = false;
+
+        // Tình huống A: Xe đổi chủ hoặc gán sai chủ
+        if (vehicle.getCustomer() == null || !vehicle.getCustomer().getCustomerId().equals(customer.getCustomerId())) {
+            vehicle.setCustomer(customer);
+            needUpdateVehicle = true;
+        }
+
+        // Tình huống B: Xe từng bị xóa mềm -> Kích hoạt lại
+        if (Boolean.FALSE.equals(vehicle.getIsActive())) {
+            vehicle.setIsActive(true);
+            needUpdateVehicle = true;
+        }
+
+        // Tình huống C: Đồng bộ thông tin xe (Sử dụng Objects.equals để an toàn chống Null)
+        if (!java.util.Objects.equals(vehicle.getVehicleType(), request.getVehicleType()) ||
+                !java.util.Objects.equals(vehicle.getBrand(), request.getBrand()) ||
+                !java.util.Objects.equals(vehicle.getColor(), request.getColor())) {
+
+            vehicle.setVehicleType(request.getVehicleType());
+            vehicle.setBrand(request.getBrand());
+            vehicle.setColor(request.getColor());
+            needUpdateVehicle = true;
+        }
+
+        if (needUpdateVehicle) {
+            vehicle = vehicleRepository.save(vehicle);
+        }
+
+        // 5. TÍNH TOÁN TÀI CHÍNH (PRICING LOGIC)
         BigDecimal basePrice = washService.getPrice();
         BigDecimal discountFromTier = BigDecimal.ZERO;
 
         if (customer.getLoyaltyTier().getDiscountPercent() > 0) {
-            BigDecimal pct = BigDecimal.valueOf(customer.getLoyaltyTier().getDiscountPercent()).divide(BigDecimal.valueOf(100));
+            BigDecimal pct = BigDecimal.valueOf(customer.getLoyaltyTier().getDiscountPercent())
+                    .divide(BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP);
             discountFromTier = basePrice.multiply(pct);
         }
 
         BigDecimal finalPrice = basePrice.subtract(discountFromTier);
-        if (finalPrice.compareTo(BigDecimal.ZERO) < 0) finalPrice = BigDecimal.ZERO;
+        if (finalPrice.compareTo(BigDecimal.ZERO) < 0) {
+            finalPrice = BigDecimal.ZERO;
+        }
 
+        // 6. KHỞI TẠO ĐƠN ĐẶT LỊCH (BOOKING)
         Booking booking = new Booking();
         booking.setBookingDate(today);
         booking.setVehicle(vehicle);
         booking.setWashService(washService);
-        booking.setStatus("Confirmed"); // Khách vãng lai vào thẳng trạng thái chờ rửa luôn
+        booking.setStatus("CONFIRMED");
 
+        // Snapshot lịch sử hóa đơn
         booking.setBasePriceAtBooking(basePrice);
         booking.setTotalPrice(finalPrice);
         booking.setLicensePlateAtBooking(vehicle.getLicensePlate());
@@ -386,7 +507,7 @@ public class BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
 
-        // GIỮ CHỖ CHO KHÁCH TẠI QUẦY
+        // 7. KHÓA CỨNG Ô GIỜ
         for (TimeSlot targetSlot : slotsToReserve) {
             BookingSlot bookingSlot = new BookingSlot();
             bookingSlot.setBooking(savedBooking);
@@ -394,7 +515,31 @@ public class BookingService {
             bookingSlotRepository.save(bookingSlot);
         }
 
-        return new BookingResponse(savedBooking);
+        // 8. TÍNH ĐIỂM THƯỞNG CHI TIẾT (Đã vá lỗi Arithmetic và làm tròn toán học)
+        BigDecimal discountFromPromo = BigDecimal.ZERO;
+        BigDecimal discountFromReward = BigDecimal.ZERO;
+        String addOn = "NONE";
+
+        // Thực hiện chia có kèm scale và chế độ làm tròn HALF_UP (Làm tròn lên từ .5)
+        BigDecimal basePoints = finalPrice.divide(BigDecimal.valueOf(1000), 2, java.math.RoundingMode.HALF_UP);
+        BigDecimal multiplier = BigDecimal.valueOf(customer.getLoyaltyTier().getPointMultiplier());
+
+        // Nhân hệ số và lấy phần nguyên sau khi làm tròn chuẩn toán học
+        Integer totalPointEarned = basePoints.multiply(multiplier)
+                .setScale(0, java.math.RoundingMode.HALF_UP)
+                .intValue();
+
+        // 9. TRẢ VỀ DTO HÓA ĐƠN CHI TIẾT
+        BookingDetailPriceResponse response = new BookingDetailPriceResponse();
+        response.setBasePrice(basePrice);
+        response.setDiscountFromTier(discountFromTier);
+        response.setDiscountFromPromo(discountFromPromo);
+        response.setDiscountFromReward(discountFromReward);
+        response.setAddOn(addOn);
+        response.setFinalPrice(finalPrice);
+        response.setTotalPointEarned(totalPointEarned);
+
+        return response;
     }
 
     /* =========================================================================
@@ -423,7 +568,6 @@ public class BookingService {
         for (int j = 0; j < slotsNeeded; j++) {
             TimeSlot intermediateSlot = allActiveSlots.get(startIndex + j);
 
-            // Tận dụng câu lệnh đếm COUNT siêu tốc từ database
             long occupiedCount = bookingSlotRepository.countOccupiedVehicles(date, intermediateSlot.getSlotId());
 
             if (occupiedCount >= intermediateSlot.getMaxCapacity()) {
@@ -443,5 +587,39 @@ public class BookingService {
     public List<BookingListResponse> getBookingList(){
         List<BookingListResponse> bookingList = bookingRepository.findAll().stream().map(BookingListResponse::new).toList();
         return bookingList;
+    }
+
+    /**
+     * Hủy lịch đặt xe và hoàn trả tài nguyên (Voucher) về ví cho khách hàng
+     */
+    @Transactional
+    public void cancelBooking(Integer bookingId) {
+        // 1. Kiểm tra xem đơn đặt lịch có tồn tại không
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found with ID: " + bookingId));
+
+        // 2. Kiểm tra trạng thái đơn hàng hiện tại
+        // Đơn đã HOÀN THÀNH thì không được phép hủy nữa
+        if ("COMPLETED".equalsIgnoreCase(booking.getStatus())) {
+            throw new RuntimeException("Cannot cancel a booking that is already COMPLETED.");
+        }
+        // Đơn đã HỦY TRƯỚC ĐÓ rồi thì chặn luôn, tránh gửi request trùng lặp
+        if ("CANCELLED".equalsIgnoreCase(booking.getStatus())) {
+            throw new RuntimeException("This booking has already been cancelled.");
+        }
+
+        // 3. Cập nhật trạng thái đơn hàng thành CANCELLED
+        booking.setStatus("CANCELLED");
+        bookingRepository.save(booking);
+
+        // 4. Kiểm tra xem đơn này có đang trói buộc cái Voucher nào không
+        // (Tìm bản ghi đổi thưởng dựa theo đối tượng booking hiện tại)
+        RewardRedemption redemption = rewardRedemptionRepository.findByBooking(booking);
+
+        if (redemption != null) {
+            // Đặt lại booking bằng null để đưa Voucher quay về trạng thái "Chưa sử dụng"
+            redemption.setBooking(null);
+            rewardRedemptionRepository.save(redemption);
+        }
     }
 }

@@ -98,6 +98,13 @@ public class SecurityConfig {
                         //Customer
                         .requestMatchers(HttpMethod.GET,"/api/customers/customers/**").hasRole("MANAGER")
 
+
+                        //Booking
+                        .requestMatchers(HttpMethod.GET,"/api/v1/bookings/available-slots/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/bookings/{bookingId}/confirm-arrival/**").hasAnyRole("MANAGER","STAFF")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/bookings/{bookingId}/complete/**").hasAnyRole("MANAGER","STAFF")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/bookings/walk-in/**").hasAnyRole("MANAGER","STAFF")
+
                         // Others
                         .anyRequest().authenticated()
                 )
