@@ -149,7 +149,18 @@ public class BookingService {
         StringJoiner addOnJoiner = new StringJoiner(", ");
 
         // --- ENGINE TÍNH TIỀN ---
-        BigDecimal basePrice = washService.getPrice();
+        //small, medium, large, extra
+        String vehicleType = vehicle.getVehicleType();
+        BigDecimal basePrice=washService.getPrice();
+        if (vehicleType.equalsIgnoreCase("small")){
+            basePrice = washService.getPrice();
+        }else if(vehicleType.equalsIgnoreCase("medium")){
+            basePrice = washService.getPrice().add(BigDecimal.valueOf(50000));
+        }else if(vehicleType.equalsIgnoreCase("large")){
+            basePrice = washService.getPrice().add(BigDecimal.valueOf(100000));
+        }else if(vehicleType.equalsIgnoreCase("extra")){
+            basePrice = washService.getPrice().add(BigDecimal.valueOf(150000));
+        }
         BigDecimal discountFromTier = BigDecimal.ZERO;
         BigDecimal discountFromPromo = BigDecimal.ZERO;
         BigDecimal discountFromVouchers = BigDecimal.ZERO;
@@ -477,7 +488,19 @@ public class BookingService {
         }
 
         // 5. TÍNH TOÁN TÀI CHÍNH (PRICING LOGIC)
-        BigDecimal basePrice = washService.getPrice();
+        //small, medium, large, extra
+        String vehicleType = vehicle.getVehicleType();
+        BigDecimal basePrice=washService.getPrice();
+        if (vehicleType.equalsIgnoreCase("small")){
+            basePrice = washService.getPrice();
+        }else if(vehicleType.equalsIgnoreCase("medium")){
+            basePrice = washService.getPrice().add(BigDecimal.valueOf(50000));
+        }else if(vehicleType.equalsIgnoreCase("large")){
+            basePrice = washService.getPrice().add(BigDecimal.valueOf(100000));
+        }else if(vehicleType.equalsIgnoreCase("extra")){
+            basePrice = washService.getPrice().add(BigDecimal.valueOf(150000));
+        }
+
         BigDecimal discountFromTier = BigDecimal.ZERO;
 
         if (customer.getLoyaltyTier().getDiscountPercent() > 0) {

@@ -152,13 +152,13 @@
 	INSERT INTO vehicle
 	(brand, color, is_active, license_plate, vehicle_type, customer_id)
 	VALUES
-	('Toyota Corolla Cross',  'White', 1, '60A-12345', 'Sedan',     1),
-	('Honda HRV',   'Black', 1, '51F-67890', 'SUV',       1),
-	('VinFast VF9', 'Blue',  1, '50H-11111', 'Electric',  1),
+	('Toyota Corolla Cross',  'White', 1, '60A-12345', 'medium',     1),
+	('Honda HRV',   'Black', 1, '51F-67890', 'medium',       1),
+	('VinFast VF9', 'Blue',  1, '50H-11111', 'extra',  1),
 
-	('Hyundai Santafe', 'Red',   1, '61A-22222', 'Hatchback', 2),
-	('Kia Morning',     'Gray',  1, '72B-33333', 'SUV',       2),
-	('Mazda Cx5',   'White', 0, '43C-44444', 'Sedan',     2);
+	('Hyundai Santafe', 'Red',   1, '61A-22222', 'large', 2),
+	('Kia Morning',     'Gray',  1, '72B-33333', 'small',       2),
+	('Mazda Cx5',   'White', 0, '43C-44444', 'medium',     2);
 
 
 

@@ -38,22 +38,26 @@ public class VehicleService {
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found to add vehicle!"));
 
+
         Optional<Vehicle> existingVehicle = vehicleRepository.findByLicensePlate(request.getLicensePlate());
-        if (existingVehicle.isPresent()) {
+
+        Vehicle vehicle = existingVehicle.orElseGet(()->{
+            Vehicle  newVehicle = new Vehicle();
+            newVehicle.setLicensePlate(request.getLicensePlate());
+            return  newVehicle;
+        });
+
+        if(existingVehicle.isPresent()
+                && Boolean.TRUE.equals(existingVehicle.get().getIsActive())){
             throw new RuntimeException("This license plate has already been registered to another vehicle in the system!");
         }
 
-        Vehicle vehicle = new Vehicle();
         vehicle.setCustomer(customer);
-        vehicle.setLicensePlate(request.getLicensePlate());
         vehicle.setVehicleType(request.getVehicleType());
         vehicle.setBrand(request.getBrand());
         vehicle.setColor(request.getColor());
-        if(request.getIsActive()!=null){
-            vehicle.setIsActive(request.getIsActive());
-        }else{
-            vehicle.setIsActive(true);
-        }
+        vehicle.setIsActive(true);
+
 
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
         return new VehicleResponse(savedVehicle);
