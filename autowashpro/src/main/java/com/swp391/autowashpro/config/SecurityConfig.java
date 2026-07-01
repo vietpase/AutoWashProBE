@@ -105,6 +105,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/bookings/{bookingId}/complete/**").hasAnyRole("MANAGER","STAFF")
                         .requestMatchers(HttpMethod.POST, "/api/v1/bookings/walk-in/**").hasAnyRole("MANAGER","STAFF")
 
+                        //force-review-loyaltyTier
+                        .requestMatchers(HttpMethod.GET, "/api/test/force-review/**").hasAnyRole("MANAGER","STAFF")
+
                         // Others
                         .anyRequest().authenticated()
                 )

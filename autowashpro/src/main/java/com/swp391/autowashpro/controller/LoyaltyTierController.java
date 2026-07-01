@@ -99,4 +99,6 @@ public class LoyaltyTierController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+
 }
