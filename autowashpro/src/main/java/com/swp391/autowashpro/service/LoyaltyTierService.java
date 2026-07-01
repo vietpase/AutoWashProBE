@@ -2,19 +2,36 @@ package com.swp391.autowashpro.service;
 
 import com.swp391.autowashpro.dto.LoyaltyTierRequest;
 import com.swp391.autowashpro.dto.LoyaltyTierResponse;
+import com.swp391.autowashpro.entity.Customer;
+import com.swp391.autowashpro.entity.CustomerMonthlyStats;
 import com.swp391.autowashpro.entity.LoyaltyTier;
+import com.swp391.autowashpro.repository.CustomerMonthlyStatsRepository;
+import com.swp391.autowashpro.repository.CustomerRepository;
 import com.swp391.autowashpro.repository.LoyaltyTierRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 @Service
+@Slf4j
 public class LoyaltyTierService {
     private final LoyaltyTierRepository loyaltyTierRepository;
+    private final CustomerMonthlyStatsRepository customerMonthlyStatsRepository;
+    private final CustomerRepository customerRepository;
 
-    public LoyaltyTierService(LoyaltyTierRepository loyaltyTierRepository){
+
+    public LoyaltyTierService(LoyaltyTierRepository loyaltyTierRepository, CustomerMonthlyStatsRepository customerMonthlyStatsRepository,
+                              CustomerRepository customerRepository){
         this.loyaltyTierRepository=loyaltyTierRepository;
+        this.customerMonthlyStatsRepository = customerMonthlyStatsRepository;
+        this.customerRepository = customerRepository;
     }
 
 //  Get All LoyaltyTiers for manager
@@ -92,6 +109,55 @@ public class LoyaltyTierService {
         // Thực hiện Soft Delete (Xóa mềm) để bảo vệ các Customer đang liên kết với Tier này
         tier.setIsActive(false);
         loyaltyTierRepository.save(tier);
+    }
+
+
+//   Update loyaltyTier
+    @Transactional
+    public void reviewMonthlyCustomerTier(Customer customer, Date reviewDate) {
+        // 1. Tự động tính ra chuỗi định dạng của tháng trước (Ví dụ: Tháng hiện tại là 2026-07 -> Tháng trước là "202606")
+        YearMonth currentMonth = YearMonth.now();
+        YearMonth previousMonth = currentMonth.minusMonths(1);
+        String previousMonthStr = previousMonth.format(DateTimeFormatter.ofPattern("yyyyMM"));
+
+        // 2. Truy vấn dữ liệu chi tiêu của khách trong tháng trước
+        CustomerMonthlyStats pastMonthStats = customerMonthlyStatsRepository
+                .findByCustomerAndYearMonth(customer, previousMonthStr)
+                .orElse(null);
+
+        // Nếu tháng trước khách không hề tới tiệm rửa xe, mặc định chỉ số tháng đó bằng 0
+        BigDecimal spendInMonth = BigDecimal.ZERO;
+        int visitsInMonth = 0;
+
+        if (pastMonthStats != null) {
+            spendInMonth = pastMonthStats.getMonthlySpend() != null ? pastMonthStats.getMonthlySpend() : BigDecimal.ZERO;
+            visitsInMonth = pastMonthStats.getMonthlyVisits() != null ? pastMonthStats.getMonthlyVisits() : 0;
+        }
+
+        // 3. Lấy tất cả các hạng từ DB lên, sắp xếp theo thứ tự ưu tiên TỪ CAO XUỐNG THẤP (DIAMOND -> BRONZE)
+        List<LoyaltyTier> allTiers = loyaltyTierRepository.findAll();
+        allTiers.sort(Comparator.comparing(LoyaltyTier::getPriorityLevel).reversed());
+
+        // Mặc định ban đầu nếu không thỏa mãn mốc nào sẽ là hạng thấp nhất (BRONZE)
+        LoyaltyTier appropriateTier = allTiers.get(allTiers.size() - 1);
+
+        // 4. So sánh chỉ số của THÁNG TRƯỚC với điều kiện cấu hình của các hạng
+        for (LoyaltyTier tier : allTiers) {
+            if (spendInMonth.compareTo(tier.getMinSpending()) >= 0 && visitsInMonth >= tier.getMinVisits()) {
+                appropriateTier = tier;
+                break; // Tìm thấy hạng cao nhất thỏa mãn trong tháng trước, dừng vòng lặp
+            }
+        }
+
+        // 5. Cập nhật hạng mới (Hệ thống tự hiểu là Giữ nguyên / Thăng hạng / Hạ hạng)
+        if (!customer.getLoyaltyTier().getTierId().equals(appropriateTier.getTierId())) {
+            log.info("Khách hàng ID {}: Thay đổi hạng từ {} -> {}",
+                    customer.getCustomerId(), customer.getLoyaltyTier().getTierName(), appropriateTier.getTierName());
+        }
+
+        customer.setLoyaltyTier(appropriateTier);
+        customer.setLastTierReview(reviewDate); // Ghi nhận ngày chạy quét thành công
+        customerRepository.save(customer);
     }
 
 }
