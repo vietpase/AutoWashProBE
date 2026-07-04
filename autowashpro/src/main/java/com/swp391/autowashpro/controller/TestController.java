@@ -20,10 +20,6 @@ public class TestController {
     private final CustomerRepository customerRepository;
     private final LoyaltyTierService loyaltyTierService;
 
-    /**
-     * API dùng để Demo/Test kích hoạt quét hạng bằng tay
-     * Đường dẫn: GET http://localhost:8080/api/test/force-review
-     */
     @GetMapping("/force-review")
     public ResponseEntity<String> forceMonthlyReview() {
         List<Customer> allCustomers = customerRepository.findAll();

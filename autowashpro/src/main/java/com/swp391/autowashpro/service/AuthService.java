@@ -46,8 +46,8 @@ public class AuthService {
 
 //    Register Customer
     public Customer registerCustomer(RegisterRequest request){
-        if(customerRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()){
-            throw new RuntimeException("This phone number is already logged in the system!");
+        if(customerRepository.findByEmail(request.getEmail()).isPresent()){
+            throw new RuntimeException("This Email is already logged in the system!");
         }
 
         Customer customer = new Customer();

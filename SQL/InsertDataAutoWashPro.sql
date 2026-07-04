@@ -70,7 +70,7 @@ VALUES
 (N'Áp dụng trực tiếp vào hóa đơn cho mọi dịch vụ.', 100000.00, 1, 90, N'Voucher giảm giá 100.000đ', 9);
 
 -- ============================================================
--- 7. CUSTOMER (Đã phân bổ trực tiếp ID hạng từ 1 đến 4, Pass thô: 123456789)
+-- 7. CUSTOMER ( Pass: 123456789)
 -- ============================================================
 SET IDENTITY_INSERT [dbo].[customer] ON;
 INSERT INTO [dbo].[customer] (customer_id, create_at, current_points, email, full_name, last_tier_review, password, phone_number, total_spend, total_visits, tier_id) 
@@ -82,7 +82,7 @@ VALUES
 SET IDENTITY_INSERT [dbo].[customer] OFF;
 
 -- ============================================================
--- 8. VEHICLE (Gán đúng kiểu chữ thường phân loại: small/medium/large/extra)
+-- 8. VEHICLE 
 -- ============================================================
 SET IDENTITY_INSERT [dbo].[vehicle] ON;
 INSERT INTO [dbo].[vehicle] (vehicle_id, brand, color, is_active, license_plate, vehicle_type, customer_id)
@@ -98,7 +98,7 @@ VALUES
 SET IDENTITY_INSERT [dbo].[vehicle] OFF;
 
 -- ============================================================
--- 9. BOOKING (Đã sửa đổi promotion_id thành promo_id)
+-- 9. BOOKING 
 -- ============================================================
 SET IDENTITY_INSERT [dbo].[booking] ON;
 
@@ -199,6 +199,13 @@ INSERT INTO [dbo].[customer_monthly_stats] (year_month, monthly_spend, monthly_v
 	--select * from [dbo].[wash_history]
 
 
+	-- ============================================================
+	-- AUTO UPDATE LOYALTYTIER
+	-- ============================================================
 	-- Ép tất cả về hạng 1 (Bronze) và xóa ngày review cũ để test tính năng up-tier
 	--UPDATE [dbo].[customer] 
 	--SET tier_id = 1, last_tier_review = NULL;
+
+	--SELECT * 
+	--FROM [dbo].[admin_account] a
+	--WHERE a.role NOT LIKE '%MANAGER%';
