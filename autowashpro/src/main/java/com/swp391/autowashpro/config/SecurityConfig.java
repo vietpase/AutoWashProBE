@@ -105,6 +105,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/bookings/{bookingId}/complete/**").hasAnyRole("MANAGER","STAFF")
                         .requestMatchers(HttpMethod.POST, "/api/v1/bookings/walk-in/**").hasAnyRole("MANAGER","STAFF")
 
+                        //Staff
+                        .requestMatchers(HttpMethod.GET,"/api/staff/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.POST, "/api/staff/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/api/staff/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/staff/**").hasRole("MANAGER")
+
                         //force-review-loyaltyTier
                         .requestMatchers(HttpMethod.GET, "/api/test/force-review/**").hasAnyRole("MANAGER","STAFF")
 

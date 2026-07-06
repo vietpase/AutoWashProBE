@@ -92,8 +92,9 @@ public class BookingController {
         return ResponseEntity.ok(response);
     }
     @GetMapping
+    @PreAuthorize("hasAnyRole('MANAGER','STAFF')")
     @Operation(
-            summary = "Get booking List",
+            summary = "Get booking list for Manager",
             description = "Get all bookings."
     )
     public ResponseEntity<?> getBookingList() {
@@ -101,6 +102,21 @@ public class BookingController {
             List<BookingListResponse> response= bookingService.getBookingList();
             return ResponseEntity.ok(response);
         }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/customer/{id}")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'STAFF', 'MANAGER')")
+    @Operation(
+            summary = "Get wash history for customer",
+            description = "Get bookings history for a specific customer by their ID."
+    )
+    public ResponseEntity<?> getWashHistory(@PathVariable Integer id) {
+        try {
+            List<BookingListResponse> response = bookingService.getWashHistory(id);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
