@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
@@ -17,4 +18,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "AND bs.timeSlot.slotId = :slotId " + // Tìm thông qua alias của bảng trung gian
             "AND b.status != 'CANCELLED'") // Viết hoa chữ CANCELLED để khớp với Enum/String
     long countBookingsByDateAndSlotId(@Param("date") LocalDate date, @Param("slotId") Integer slotId);
+
+    List<Booking> findByVehicleCustomerCustomerId(Integer customerId);
 }

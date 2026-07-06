@@ -605,11 +605,19 @@ public class BookingService {
     }
 
     /* =========================================================================
-     * PHẦN 5: LẤY DANH SÁCH BOOKING (MANAGER OPERATIONS)
+     * PHẦN 5: LẤY DANH SÁCH BOOKING
      * ========================================================================= */
     public List<BookingListResponse> getBookingList(){
         List<BookingListResponse> bookingList = bookingRepository.findAll().stream().map(BookingListResponse::new).toList();
         return bookingList;
+    }
+
+    @Transactional
+    public List<BookingListResponse> getWashHistory(Integer customerId) {
+        List<Booking> bookings = bookingRepository.findByVehicleCustomerCustomerId(customerId);
+        return bookings.stream()
+                .map(BookingListResponse::new)
+                .toList();
     }
 
     /**
