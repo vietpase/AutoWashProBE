@@ -17,4 +17,6 @@ public interface AdminAccountRepository extends JpaRepository<AdminAccount,Integ
 
     @Query("SELECT a FROM AdminAccount a WHERE a.role NOT LIKE '%MANAGER%'")
     List<AdminAccount> findAllStaff();
+
+
 }

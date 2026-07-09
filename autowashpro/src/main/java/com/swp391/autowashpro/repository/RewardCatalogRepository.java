@@ -13,4 +13,6 @@ public interface RewardCatalogRepository extends JpaRepository<RewardCatalog, In
     List<RewardCatalog> findByIsActiveTrueAndStockQuantityGreaterThanOrderByPointsRequiredAsc(Integer minStock);
 
     List<RewardCatalog> findAllByOrderByPointsRequiredAsc();
+
+    long countByIsActiveTrue();
 }
