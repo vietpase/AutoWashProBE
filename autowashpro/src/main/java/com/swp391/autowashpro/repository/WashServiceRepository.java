@@ -13,4 +13,7 @@ public interface WashServiceRepository extends JpaRepository<WashService,Integer
     List<WashService> findByIsActiveTrue();
 
     Boolean existsByServiceNameAndServiceIdNot(Integer id, String serviceName);
+
+
+
 }
