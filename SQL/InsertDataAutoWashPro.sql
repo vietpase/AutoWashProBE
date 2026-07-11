@@ -5,10 +5,10 @@ SET IDENTITY_INSERT [dbo].[loyalty_tier] ON;
 INSERT INTO [dbo].[loyalty_tier] 
 (tier_id, booking_window_days, discount_percent, is_active, min_spending, min_visits, point_multiplier, priority_level, tier_name)
 VALUES 
-(1, 7,  0,  1, 0.00,        0,   1.0, 1, 'MEMBER'),
+(1, 7,  0,  1, 0.00,        0,   1.0, 1, 'BRONZE'),
 (2, 14, 5,  1, 1000000.00,  5,   1.2, 2, 'SILVER'),
 (3, 30, 10, 1, 5000000.00,  15,  1.5, 3, 'GOLD'),
-(4, 60, 15, 1, 15000000.00, 30,  2.0, 4, 'PLATINUM');
+(4, 60, 15, 1, 15000000.00, 30,  2.0, 4, 'DIAMOND');
 SET IDENTITY_INSERT [dbo].[loyalty_tier] OFF;
 
 -- ============================================================
