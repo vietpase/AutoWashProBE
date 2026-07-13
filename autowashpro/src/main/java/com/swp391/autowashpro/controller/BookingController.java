@@ -45,13 +45,14 @@ public class BookingController {
     }
 
     @PostMapping
-    @Operation(
-            summary = "Place a new car wash reservation",
-            description = "Creates a slot booking. Evaluates tier priority window, cross-checks vehicle ownership, calculates final price using tier dynamic pricing, promotion discounts, and checks multiple loyalty voucher limits."
-    )
-    public ResponseEntity<BookingDetailPriceResponse> createOnlineBooking(@Valid @RequestBody BookingRequest request) {
-        BookingDetailPriceResponse response = bookingService.createBooking(request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    @Operation(summary = "Place a new car wash reservation")
+    public ResponseEntity<?> createOnlineBooking(@Valid @RequestBody BookingRequest request) {
+        try {
+            BookingDetailPriceResponse response = bookingService.createBooking(request);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
 

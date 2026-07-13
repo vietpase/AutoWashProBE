@@ -25,7 +25,7 @@
         @Column(name = "points_change", nullable = false)
         private Integer pointsChange;
 
-        @Column(name = "transaction_type", length = 50, nullable = false)
+        @Column(name = "transaction_type", columnDefinition = "NVARCHAR(100)", nullable = false)
         private String transactionType;
 
         @Column(name = "expiry_date")

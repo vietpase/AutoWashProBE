@@ -140,7 +140,7 @@ public class RewardService {
         LoyaltyPoint pointLog = new LoyaltyPoint();
         pointLog.setCustomer(customer);
         pointLog.setPointsChange(-totalPointsNeeded);
-        pointLog.setTransactionType("REDEEM_REWARD");
+        pointLog.setTransactionType(reward.getRewardName());
         pointLog.setCreatedAt(LocalDateTime.now(VIETNAM_ZONE));
         loyaltyPointRepository.save(pointLog);
 
@@ -157,13 +157,6 @@ public class RewardService {
         redemption.setDiscountAmountAtRedemption(reward.getDiscountAmount());
 
         return new RewardRedemptionResponse(rewardRedemptionRepository.save(redemption));
-    }
-
-    @Transactional(readOnly = true)
-    public List<RewardRedemptionResponse> getCustomerRedemptionHistory(Integer customerId) {
-        return rewardRedemptionRepository.findByCustomerCustomerIdOrderByRedemptionDateDesc(customerId).stream()
-                .map(RewardRedemptionResponse::new)
-                .toList();
     }
 
     @Transactional(readOnly = true)

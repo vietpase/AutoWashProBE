@@ -175,13 +175,22 @@ public class BookingService {
         // Tính giảm giá theo Campaign công khai (Promotion)
         Promotion promotion = null;
         if (request.getPromotionId() != null) {
+            // Tìm promotion trong DB
             promotion = promotionRepository.findById(request.getPromotionId()).orElse(null);
-            if(promotion.getLoyaltyTier() != null &&
-                    !promotion.getLoyaltyTier().getTierId().equals(currentTier.getTierId()) ){
+
+            // Nếu truyền ID lên nhưng không tìm thấy Promotion trong DB
+            if (promotion == null) {
+                throw new RuntimeException("Promotion Campaign với ID " + request.getPromotionId() + " không tồn tại.");
+            }
+
+            // Nếu tìm thấy thì mới check Rank thành viên
+            if (promotion.getLoyaltyTier() != null &&
+                    !promotion.getLoyaltyTier().getTierId().equals(currentTier.getTierId())) {
                 throw new RuntimeException("This promotion is only available for " + promotion.getLoyaltyTier().getTierName() + " members.");
             }
 
-            if (promotion != null && promotion.getIsActive()) {
+            // Tính toán tiền giảm giá
+            if (promotion.getIsActive()) {
                 if (promotion.getDiscountAmount() <= 100) {
                     BigDecimal promoMultiplier = BigDecimal.valueOf(promotion.getDiscountAmount())
                             .divide(BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP);
@@ -190,7 +199,6 @@ public class BookingService {
                     discountFromPromo = BigDecimal.valueOf(promotion.getDiscountAmount());
                 }
 
-                // Nếu không có giảm giá thì mới thêm mô tả vào hóa đơn chi tiết
                 if (discountFromPromo.compareTo(BigDecimal.ZERO) == 0) {
                     addOnJoiner.add(promotion.getDescription());
                 }
@@ -373,7 +381,7 @@ public class BookingService {
             LoyaltyPoint pointLog = new LoyaltyPoint();
             pointLog.setCustomer(customer);
             pointLog.setPointsChange(totalPointsEarned);
-            pointLog.setTransactionType("EARN_BOOKING");
+            pointLog.setTransactionType(savedBooking.getWashService().getServiceName());
             pointLog.setCreatedAt(LocalDateTime.now(VIETNAM_ZONE));
             pointLog.setExpiryDate(LocalDate.now(VIETNAM_ZONE).plusMonths(1));
             pointLog.setWashHistory(savedWashHistory);
