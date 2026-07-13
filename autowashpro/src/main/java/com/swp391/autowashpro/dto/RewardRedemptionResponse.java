@@ -11,8 +11,8 @@ public class RewardRedemptionResponse {
     private Integer pointsUsed;
     private LocalDateTime redemptionDate;
     private Integer rewardId;
-    private String rewardName;      // Trả về tên quà snapshot
-    private BigDecimal discountAmount; // Trả về số tiền snapshot
+    private String rewardName;
+    private BigDecimal discountAmount;
     private Integer bookingId;
     private String status;
 
@@ -22,7 +22,6 @@ public class RewardRedemptionResponse {
         this.redemptionDate = redemption.getRedemptionDate();
         this.rewardId = redemption.getRewardCatalog().getRewardId();
 
-        // ĐỌC DỮ LIỆU TỪ SNAPSHOT (An toàn tuyệt đối trước mọi cập nhật của Manager)
         this.rewardName = redemption.getRewardNameAtRedemption();
         this.discountAmount = redemption.getDiscountAmountAtRedemption();
 

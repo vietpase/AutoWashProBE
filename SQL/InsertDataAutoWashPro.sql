@@ -411,3 +411,10 @@ INSERT INTO [dbo].[customer_monthly_stats] (year_month, monthly_spend, monthly_v
 
 
 	--delete from [dbo].[promotion] where promo_id = 5
+
+
+
+
+--update [dbo].[vehicle]
+--set is_active =1
+--where vehicle_id = 22

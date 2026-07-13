@@ -114,6 +114,9 @@ public class SecurityConfig {
                         //force-review-loyaltyTier
                         .requestMatchers(HttpMethod.GET, "/api/test/force-review/**").hasAnyRole("MANAGER","STAFF")
 
+                        //point-loyalty
+                        .requestMatchers(HttpMethod.GET, "/api/loyalty-points/customer/**").hasAnyRole("MANAGER","STAFF", "CUSTOMER")
+
                         // Others
                         .anyRequest().authenticated()
                 )
