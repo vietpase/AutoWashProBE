@@ -58,7 +58,7 @@ public class WashServiceService {
         WashService service = washServiceRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Wash service not found with ID: " + id));
 
-        if(washServiceRepository.existsByServiceNameAndServiceIdNot(id, request.getServiceName())){
+        if(washServiceRepository.existsByServiceNameAndServiceIdNot(request.getServiceName(), id)){
             throw new RuntimeException("Service name '" + request.getServiceName()+ "' is already taken by another service!");
         }
 
