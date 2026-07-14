@@ -418,3 +418,9 @@ INSERT INTO [dbo].[customer_monthly_stats] (year_month, monthly_spend, monthly_v
 --update [dbo].[vehicle]
 --set is_active =1
 --where vehicle_id = 22
+
+--update [dbo].[reward_catalog]
+--set is_active =1
+--where reward_id =3
+
+--select * from [dbo].[booking] b where b.

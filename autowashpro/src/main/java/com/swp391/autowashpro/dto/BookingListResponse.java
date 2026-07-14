@@ -26,6 +26,6 @@ public class BookingListResponse {
         this.bookingDate=booking.getBookingDate();
         this.createdAt=booking.getCreatedAt().toLocalTime();
         this.status=booking.getStatus();
-        this.totalPrice=booking.getBasePriceAtBooking();
+        this.totalPrice=booking.getTotalPrice();
     }
 }
