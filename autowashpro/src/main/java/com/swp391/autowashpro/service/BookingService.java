@@ -498,21 +498,26 @@ public class BookingService {
         // 5. TÍNH TOÁN TÀI CHÍNH (PRICING LOGIC)
         //small, medium, large, extra
         String vehicleType = vehicle.getVehicleType();
-        BigDecimal basePrice=washService.getPrice();
-        if (vehicleType.equalsIgnoreCase("small")){
-            basePrice = washService.getPrice();
-        }else if(vehicleType.equalsIgnoreCase("medium")){
-            basePrice = washService.getPrice().add(BigDecimal.valueOf(50000));
-        }else if(vehicleType.equalsIgnoreCase("large")){
-            basePrice = washService.getPrice().add(BigDecimal.valueOf(100000));
-        }else if(vehicleType.equalsIgnoreCase("extra")){
-            basePrice = washService.getPrice().add(BigDecimal.valueOf(150000));
+        if (vehicleType == null) {
+            vehicleType = "small";
+        }
+        BigDecimal basePrice = washService.getPrice() != null ? washService.getPrice() : BigDecimal.ZERO;
+        if ("small".equalsIgnoreCase(vehicleType)){
+
+        } else if("medium".equalsIgnoreCase(vehicleType)){
+            basePrice = basePrice.add(BigDecimal.valueOf(50000));
+        } else if("large".equalsIgnoreCase(vehicleType)){
+            basePrice = basePrice.add(BigDecimal.valueOf(100000));
+        } else if("extra".equalsIgnoreCase(vehicleType)){
+            basePrice = basePrice.add(BigDecimal.valueOf(150000));
         }
 
         BigDecimal discountFromTier = BigDecimal.ZERO;
 
-        if (customer.getLoyaltyTier().getDiscountPercent() > 0) {
-            BigDecimal pct = BigDecimal.valueOf(customer.getLoyaltyTier().getDiscountPercent())
+        // Dùng Integer để hứng dữ liệu tránh lỗi Auto-unboxing nếu DB trả về NULL
+        Integer discountPercent = customer.getLoyaltyTier().getDiscountPercent();
+        if (discountPercent != null && discountPercent > 0) {
+            BigDecimal pct = BigDecimal.valueOf(discountPercent)
                     .divide(BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP);
             discountFromTier = basePrice.multiply(pct);
         }
@@ -546,14 +551,16 @@ public class BookingService {
             bookingSlotRepository.save(bookingSlot);
         }
 
-        // 8. TÍNH ĐIỂM THƯỞNG CHI TIẾT (Đã vá lỗi Arithmetic và làm tròn toán học)
+        // 8. TÍNH ĐIỂM THƯỞNG CHI TIẾT
         BigDecimal discountFromPromo = BigDecimal.ZERO;
         BigDecimal discountFromReward = BigDecimal.ZERO;
         String addOn = "NONE";
 
         // Thực hiện chia có kèm scale và chế độ làm tròn HALF_UP (Làm tròn lên từ .5)
         BigDecimal basePoints = finalPrice.divide(BigDecimal.valueOf(1000), 2, java.math.RoundingMode.HALF_UP);
-        BigDecimal multiplier = BigDecimal.valueOf(customer.getLoyaltyTier().getPointMultiplier());
+        // Hứng hệ số nhân bằng Object Double, nếu DB bị NULL thì gán mặc định là x1.0
+        Double tierMultiplier = customer.getLoyaltyTier().getPointMultiplier();
+        BigDecimal multiplier = BigDecimal.valueOf(tierMultiplier != null ? tierMultiplier : 1.0);
 
         // Nhân hệ số và lấy phần nguyên sau khi làm tròn chuẩn toán học
         Integer totalPointEarned = basePoints.multiply(multiplier)

@@ -2,16 +2,19 @@ package com.swp391.autowashpro.controller;
 
 import com.swp391.autowashpro.dto.VehicleRequest;
 import com.swp391.autowashpro.dto.VehicleResponse;
+import com.swp391.autowashpro.dto.VehicleWalkInBookingResponse;
 import com.swp391.autowashpro.service.VehicleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/vehicles")
@@ -81,6 +84,19 @@ public class VehicleController {
         try {
             vehicleService.deleteVehicle(id);
             return ResponseEntity.ok("Vehicle deleted successfully with ID: " + id);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/walk-in")
+    @PreAuthorize("hasAnyRole('MANAGER','STAFF')")
+    @Operation(summary = "Search Vehicle by licencse plate")
+    public ResponseEntity<?> getVehicleWalkIn(@RequestParam String licensePlate) {
+
+        try {
+        VehicleWalkInBookingResponse response = vehicleService.getVehicleWalkInBooking(licensePlate);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

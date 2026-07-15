@@ -77,6 +77,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/time-slots/**").hasRole("MANAGER")
 
 
+                        //Walk-In
+                        .requestMatchers(HttpMethod.GET, "/api/vehicles/walk-in/**").hasAnyRole("MANAGER","STAFF")
+                        .requestMatchers(HttpMethod.GET, "/api/customers/walk-in/**").hasAnyRole("MANAGER","STAFF")
+
                         //Vehicle
                         .requestMatchers(HttpMethod.GET,"/api/vehicles/**").hasRole("CUSTOMER")
                         .requestMatchers(HttpMethod.POST, "/api/vehicles/**").hasRole("CUSTOMER")
@@ -116,6 +120,8 @@ public class SecurityConfig {
 
                         //point-loyalty
                         .requestMatchers(HttpMethod.GET, "/api/loyalty-points/customer/**").hasAnyRole("MANAGER","STAFF", "CUSTOMER")
+
+
 
                         // Others
                         .anyRequest().authenticated()

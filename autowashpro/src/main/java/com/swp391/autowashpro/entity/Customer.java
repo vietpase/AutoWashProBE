@@ -30,7 +30,7 @@ public class Customer {
     @Column(name = "full_name", columnDefinition = "NVARCHAR(100)", nullable = false)
     private String fullName;
 
-    @Column(name = "phone_number", columnDefinition = "VARCHAR(15)", unique = true)
+    @Column(name = "phone_number", columnDefinition = "VARCHAR(15)")
     private String phoneNumber;
 
     @Column(name = "email", columnDefinition = "VARCHAR(100)", nullable = false, unique = true)
