@@ -66,9 +66,13 @@ public class BookingController {
             summary = "Create a walk-in booking at the counter",
             description = "Allows counter staff to instantly register walk-in customers and their vehicles. Bypasses advanced booking windows but strictly validates real-time capacity chains before forcing the booking into 'Confirmed' status."
     )
-    public ResponseEntity<BookingDetailPriceResponse> createWalkInBooking(@Valid @RequestBody WalkInBookingRequest request) {
-        BookingDetailPriceResponse response = bookingService.createWalkInBooking(request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<?> createWalkInBooking(@Valid @RequestBody WalkInBookingRequest request) {
+        try {
+            BookingDetailPriceResponse response = bookingService.createWalkInBooking(request);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PutMapping("/{bookingId}/confirm-arrival")

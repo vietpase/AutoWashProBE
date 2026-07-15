@@ -1,6 +1,8 @@
 package com.swp391.autowashpro.controller;
 
 import com.swp391.autowashpro.dto.CustomerResponse;
+import com.swp391.autowashpro.dto.CustomerWalkInBookingResponse;
+import com.swp391.autowashpro.dto.VehicleWalkInBookingResponse;
 import com.swp391.autowashpro.entity.Customer;
 import com.swp391.autowashpro.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,5 +53,16 @@ public class CustomerController {
         }
     }
 
+    @GetMapping("/walk-in")
+    @PreAuthorize("hasAnyRole('MANAGER','STAFF')")
+    @Operation(summary = "Search customer by email")
+    public ResponseEntity<?> getCustomerWalkIn(@RequestParam String email) {
 
+        try {
+            CustomerWalkInBookingResponse response = customerService.getCustomerWalkInBooking(email);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

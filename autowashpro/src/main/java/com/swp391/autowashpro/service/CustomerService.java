@@ -1,6 +1,7 @@
 package com.swp391.autowashpro.service;
 
 import com.swp391.autowashpro.dto.CustomerResponse;
+import com.swp391.autowashpro.dto.CustomerWalkInBookingResponse;
 import com.swp391.autowashpro.entity.Customer;
 import com.swp391.autowashpro.repository.CustomerRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,5 +28,11 @@ public class CustomerService {
     // Get list of all customer
     public List<CustomerResponse> getCustomerList(){
         return customerRepository.findAll().stream().map(CustomerResponse::new).toList();
+    }
+
+    public CustomerWalkInBookingResponse getCustomerWalkInBooking(String email){
+        return customerRepository.findByEmail(email)
+                .map(CustomerWalkInBookingResponse::new)
+                .orElse(null);
     }
 }

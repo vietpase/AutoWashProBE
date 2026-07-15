@@ -2,6 +2,7 @@ package com.swp391.autowashpro.service;
 
 import com.swp391.autowashpro.dto.VehicleRequest;
 import com.swp391.autowashpro.dto.VehicleResponse;
+import com.swp391.autowashpro.dto.VehicleWalkInBookingResponse;
 import com.swp391.autowashpro.entity.Customer;
 import com.swp391.autowashpro.entity.Vehicle;
 import com.swp391.autowashpro.repository.CustomerRepository;
@@ -98,4 +99,11 @@ public class VehicleService {
         Vehicle updatedVehicle = vehicleRepository.save(vehicle);
         return new VehicleResponse(updatedVehicle);
     }
+
+    public VehicleWalkInBookingResponse getVehicleWalkInBooking(String licensePlate) {
+        return vehicleRepository.findByLicensePlate(licensePlate)
+                .map(VehicleWalkInBookingResponse::new)
+                .orElse(null);
+    }
+
 }
