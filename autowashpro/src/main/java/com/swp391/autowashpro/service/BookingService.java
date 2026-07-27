@@ -452,6 +452,14 @@ public class BookingService {
                     newCust.setTotalVisits(0);
                     return customerRepository.save(newCust);
                 });
+        //Thay đổi thông tin customer
+        if(!customer.getFullName().equalsIgnoreCase(request.getWalkInCustomerName())){
+            customer.setFullName(request.getWalkInCustomerName());
+        }
+        if(customer.getPhoneNumber().equalsIgnoreCase(request.getWalkInPhoneNumber())){
+            customer.setPhoneNumber(request.getWalkInPhoneNumber());
+        }
+
 
         // 4. ĐỊNH DANH XE
         Vehicle vehicle = vehicleRepository.findByLicensePlate(request.getLicensePlate())
