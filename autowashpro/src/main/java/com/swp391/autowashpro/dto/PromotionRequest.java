@@ -16,6 +16,7 @@ public class PromotionRequest {
     private String description;
 
     @NotNull(message = "Discount amount cannot be null")
+    @Min(value = 0, message = "Promotion amount cannot be negative")
     private Double discountAmount;
 
     @NotNull(message = "Start date cannot be null")

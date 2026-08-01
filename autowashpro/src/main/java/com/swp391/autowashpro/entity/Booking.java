@@ -45,6 +45,10 @@ public class Booking {
     @Column(name = "license_plate_at_booking", length = 20, nullable = false)
     private String licensePlateAtBooking;
 
+    @Column(name="add_on", columnDefinition = "NVARCHAR(1000)")
+    private String addOn;
+
+
     // --- MỐI QUAN HỆ GIỮA CÁC BẢNG (RELATIONSHIPS) ---
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -62,6 +66,10 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tier_id_at_booking", nullable = false)
     private LoyaltyTier tierAtBooking;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id_at_booking", nullable = false)
+    private Customer customerAtBooking;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RewardRedemption> rewardRedemptions;

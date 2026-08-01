@@ -1,4 +1,9 @@
 ﻿-- ============================================================
+-- DATABASE
+-- ============================================================
+--create database AutoWashPro
+
+-- ============================================================
 -- 1. LOYALTY TIER 
 -- ============================================================
 SET IDENTITY_INSERT [dbo].[loyalty_tier] ON;
@@ -78,14 +83,14 @@ VALUES
 (1,  '2026-06-22', 10,  'vietpase@gmail.com',       N'Harry Potter',   NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0912345678', 350000.00,   2,  1), 
 (2,  '2026-02-15', 150, 'dreamlatern0410@gmail.com', N'Bánh Đậu Xanh',   NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0987654321', 1450000.00,  5,  2), 
 (3,  '2026-01-10', 450, 'ron@gmail.com',              N'Ron Weasley',    NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0933333333', 5600000.00,  16, 3), 
-(4,  '2026-01-01', 990, 'hermione@gmail.com',         N'Hermione VIP',   NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0944444444', 16200000.00, 31, 4),
+(4,  '2026-01-01', 990, 'hermione@gmail.com',         N'Hermione VIP',   NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0944444444', 15500000.00, 32, 4),
 -- 10 Khách hàng thêm mới
 (5,  '2026-02-01', 50,  'nguyenvanan@gmail.com',   N'Nguyễn Văn An',    NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0901112223', 500000.00,   2,  1),  
 (6,  '2026-02-10', 195, 'tranthingocb@gmail.com',  N'Trần Thị Ngọc B',  NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0902223334', 1567500.00,  5,  2),  
-(7,  '2026-01-15', 525, 'lehoangcuong@gmail.com',  N'Lê Hoàng Cường',   NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0903334445', 4725000.00,  15, 3),  
+(7,  '2026-01-15', 525, 'lehoangcuong@gmail.com',  N'Lê Hoàng Cường',   NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0903334445', 5200000.00,  16, 3),  
 (8,  '2026-03-01', 15,  'phamminhdung@gmail.com',  N'Phạm Minh Dũng',   NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0904445556', 150000.00,   1,  1),  
 (9,  '2026-02-20', 220, 'hoangphane@gmail.com',    N'Hoàng Phan Em',    NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0905556667', 2100000.00,  6,  2),  
-(10, '2026-01-05', 1150,'vuhoangphi@gmail.com',    N'Vũ Hoàng Phi VIP', NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0906667778', 17850000.00, 32, 4),  
+(10, '2026-01-05', 1150,'vuhoangphi@gmail.com',    N'Vũ Hoàng Phi VIP', NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0906667778', 16000000.00, 35, 4),  
 (11, '2026-04-10', 35,  'dangthigia@gmail.com',    N'Đặng Thị Gia',     NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0907778889', 350000.00,   1,  1),  
 (12, '2026-02-01', 480, 'dovanhung@gmail.com',     N'Đỗ Văn Hùng',      NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0908889990', 5200000.00,  16, 3),  
 (13, '2026-03-15', 180, 'buiminhhai@gmail.com',    N'Bùi Minh Hải',     NULL, '$2a$12$7iQ6mml/x4nuynIzlBcPFeS9uzewtv.rYdwXsf/ZdBfEaR7dwtV3a', '0909990001', 1350000.00,  5,  2),  
@@ -127,73 +132,85 @@ SET IDENTITY_INSERT [dbo].[vehicle] OFF;
 SET IDENTITY_INSERT [dbo].[booking] ON;
 
 -- --- THÁNG 2/2026 ---
-INSERT INTO [dbo].[booking] (booking_id, booking_date, created_at, vehicle_id, service_id, promotion_id, status, base_price_at_booking, total_price, license_plate_at_booking, tier_id_at_booking, priority_level) VALUES
-(51, '2026-02-02', '2026-02-02 08:15:00', 7, 1, NULL, 'COMPLETED', 200000.00, 180000.00, '51G-99999', 3, 3), 
-(52, '2026-02-12', '2026-02-12 16:00:00', 8, 4, NULL, 'COMPLETED', 1350000.00, 1147500.00, '51K-88888', 4, 4), 
-(53, '2026-02-18', '2026-02-18 10:30:00', 4, 2, NULL, 'COMPLETED', 450000.00, 427500.00, '61A-22222', 2, 2), 
-(54, '2026-02-25', '2026-02-25 13:45:00', 7, 2, NULL, 'COMPLETED', 400000.00, 360000.00, '51G-99999', 3, 3),
-(203, '2026-02-15', '2026-02-15 09:30:00', 10, 2, NULL, 'COMPLETED', 350000.00, 332500.00, '60A-55555', 2, 2),
-(204, '2026-02-28', '2026-02-28 15:00:00', 10, 1, NULL, 'COMPLETED', 150000.00, 142500.00, '60A-55555', 2, 2),
-(208, '2026-02-20', '2026-02-20 09:00:00', 11, 4, NULL, 'COMPLETED', 1200000.00, 1080000.00, '51C-99988', 3, 3),
-(214, '2026-02-11', '2026-02-11 16:00:00', 14, 4, NULL, 'COMPLETED', 1200000.00, 1020000.00, '51K-66666', 4, 4);
+INSERT INTO [dbo].[booking] 
+(booking_id, add_on, base_price_at_booking, booking_date, created_at, license_plate_at_booking, priority_level, status, total_price, customer_id_at_booking, promotion_id, tier_id_at_booking, vehicle_id, service_id) 
+VALUES
+(51,  NULL, 200000.00,  '2026-02-02', '2026-02-02 08:15:00', '51G-99999', 3, 'COMPLETED', 180000.00,  3,  NULL, 3, 7,  1), 
+(52,  NULL, 1350000.00, '2026-02-12', '2026-02-12 16:00:00', '51K-88888', 4, 'COMPLETED', 1147500.00, 4,  NULL, 4, 8,  4), 
+(53,  NULL, 450000.00,  '2026-02-18', '2026-02-18 10:30:00', '61A-22222', 2, 'COMPLETED', 427500.00,  2,  NULL, 2, 4,  2), 
+(54,  NULL, 400000.00,  '2026-02-25', '2026-02-25 13:45:00', '51G-99999', 3, 'COMPLETED', 360000.00,  3,  NULL, 3, 7,  2),
+(203, NULL, 350000.00,  '2026-02-15', '2026-02-15 09:30:00', '60A-55555', 2, 'COMPLETED', 332500.00,  6,  NULL, 2, 10, 2),
+(204, NULL, 150000.00,  '2026-02-28', '2026-02-28 15:00:00', '60A-55555', 2, 'COMPLETED', 142500.00,  6,  NULL, 2, 10, 1),
+(208, NULL, 1200000.00, '2026-02-20', '2026-02-20 09:00:00', '51C-99988', 3, 'COMPLETED', 1080000.00, 7,  NULL, 3, 11, 4),
+(214, NULL, 1200000.00, '2026-02-11', '2026-02-11 16:00:00', '51K-66666', 4, 'COMPLETED', 1020000.00, 10, NULL, 4, 14, 4);
 
 -- --- THÁNG 3/2026 ---
-INSERT INTO [dbo].[booking] (booking_id, booking_date, created_at, vehicle_id, service_id, promotion_id, status, base_price_at_booking, total_price, license_plate_at_booking, tier_id_at_booking, priority_level) VALUES
-(55, '2026-03-03', '2026-03-03 09:10:00', 4, 2, NULL, 'COMPLETED', 450000.00, 427500.00, '61A-22222', 2, 2), 
-(56, '2026-03-08', '2026-03-08 10:00:00', 7, 3, NULL, 'COMPLETED', 700000.00, 630000.00, '51G-99999', 3, 3), 
-(57, '2026-03-12', '2026-03-12 15:30:00', 8, 4, NULL, 'COMPLETED', 1350000.00, 1147500.00, '51K-88888', 4, 4), 
-(58, '2026-03-20', '2026-03-20 08:05:00', 5, 1, NULL, 'COMPLETED', 150000.00, 142500.00, '72B-33333', 2, 2), 
-(59, '2026-03-24', '2026-03-24 14:15:00', 7, 2, NULL, 'COMPLETED', 400000.00, 360000.00, '51G-99999', 3, 3),
-(201, '2026-03-10', '2026-03-10 08:00:00', 9,  1, NULL, 'COMPLETED', 150000.00, 150000.00, '51A-11122', 1, 1),
-(205, '2026-03-12', '2026-03-12 10:00:00', 10, 2, NULL, 'COMPLETED', 350000.00, 332500.00, '60A-55555', 2, 2),
-(206, '2026-03-25', '2026-03-25 11:00:00', 10, 3, NULL, 'COMPLETED', 650000.00, 617500.00, '60A-55555', 2, 2),
-(209, '2026-03-15', '2026-03-15 14:15:00', 20, 3, NULL, 'COMPLETED', 650000.00,   585000.00, '51G-77777', 3, 3),
-(211, '2026-03-15', '2026-03-15 08:45:00', 12, 1, NULL, 'COMPLETED', 150000.00, 150000.00, '61A-77788', 1, 1),
-(212, '2026-03-02', '2026-03-02 13:00:00', 13, 2, NULL, 'COMPLETED', 350000.00, 332500.00, '72A-44455', 2, 2),
-(215, '2026-03-20', '2026-03-20 10:30:00', 15, 4, NULL, 'COMPLETED', 1200000.00, 1020000.00, '50H-88899', 4, 4),
-(219, '2026-03-05', '2026-03-05 08:15:00', 17, 4, NULL, 'COMPLETED', 1200000.00, 1080000.00, '30H-99999', 3, 3);
+INSERT INTO [dbo].[booking] 
+(booking_id, add_on, base_price_at_booking, booking_date, created_at, license_plate_at_booking, priority_level, status, total_price, customer_id_at_booking, promotion_id, tier_id_at_booking, vehicle_id, service_id) 
+VALUES
+(55,  NULL, 450000.00,  '2026-03-03', '2026-03-03 09:10:00', '61A-22222', 2, 'COMPLETED', 427500.00,  2,  NULL, 2, 4,  2), 
+(56,  NULL, 700000.00,  '2026-03-08', '2026-03-08 10:00:00', '51G-99999', 3, 'COMPLETED', 630000.00,  3,  NULL, 3, 7,  3), 
+(57,  NULL, 1350000.00, '2026-03-12', '2026-03-12 15:30:00', '51K-88888', 4, 'COMPLETED', 1147500.00, 4,  NULL, 4, 8,  4), 
+(58,  NULL, 150000.00,  '2026-03-20', '2026-03-20 08:05:00', '72B-33333', 2, 'COMPLETED', 142500.00,  2,  NULL, 2, 5,  1), 
+(59,  NULL, 400000.00,  '2026-03-24', '2026-03-24 14:15:00', '51G-99999', 3, 'COMPLETED', 360000.00,  3,  NULL, 3, 7,  2),
+(201, NULL, 150000.00,  '2026-03-10', '2026-03-10 08:00:00', '51A-11122', 1, 'COMPLETED', 150000.00,  5,  NULL, 1, 9,  1),
+(205, NULL, 350000.00,  '2026-03-12', '2026-03-12 10:00:00', '60A-55555', 2, 'COMPLETED', 332500.00,  6,  NULL, 2, 10, 2),
+(206, NULL, 650000.00,  '2026-03-25', '2026-03-25 11:00:00', '60A-55555', 2, 'COMPLETED', 617500.00,  6,  NULL, 2, 10, 3),
+(209, NULL, 650000.00,  '2026-03-15', '2026-03-15 14:15:00', '51G-77777', 3, 'COMPLETED', 585000.00,  7,  NULL, 3, 20, 3),
+(211, NULL, 150000.00,  '2026-03-15', '2026-03-15 08:45:00', '61A-77788', 1, 'COMPLETED', 150000.00,  8,  NULL, 1, 12, 1),
+(212, NULL, 350000.00,  '2026-03-02', '2026-03-02 13:00:00', '72A-44455', 2, 'COMPLETED', 332500.00,  9,  NULL, 2, 13, 2),
+(215, NULL, 1200000.00, '2026-03-20', '2026-03-20 10:30:00', '50H-88899', 4, 'COMPLETED', 1020000.00, 10, NULL, 4, 15, 4),
+(219, NULL, 1200000.00, '2026-03-05', '2026-03-05 08:15:00', '30H-99999', 3, 'COMPLETED', 1080000.00, 12, NULL, 3, 17, 4);
 
 -- --- THÁNG 4/2026 ---
-INSERT INTO [dbo].[booking] (booking_id, booking_date, created_at, vehicle_id, service_id, promotion_id, status, base_price_at_booking, total_price, license_plate_at_booking, tier_id_at_booking, priority_level) VALUES
-(60, '2026-04-02', '2026-04-02 13:00:00', 4, 2, NULL, 'COMPLETED', 450000.00, 427500.00, '61A-22222', 2, 2), 
-(61, '2026-04-10', '2026-04-10 09:45:00', 7, 4, NULL, 'COMPLETED', 1250000.00, 1125000.00, '51G-99999', 3, 3), 
-(62, '2026-04-15', '2026-04-15 16:15:00', 8, 4, NULL, 'COMPLETED', 1350000.00, 1147500.00, '51K-88888', 4, 4), 
-(63, '2026-04-22', '2026-04-22 10:20:00', 5, 1, NULL, 'COMPLETED', 150000.00, 142500.00, '72B-33333', 2, 2), 
-(64, '2026-04-28', '2026-04-28 15:00:00', 7, 3, NULL, 'COMPLETED', 700000.00, 630000.00, '51G-99999', 3, 3),
-(210, '2026-04-18', '2026-04-18 10:00:00', 11, 4, NULL, 'COMPLETED', 1200000.00, 1080000.00, '51C-99988', 3, 3),
-(213, '2026-04-10', '2026-04-10 15:30:00', 13, 2, NULL, 'COMPLETED', 350000.00, 332500.00, '72A-44455', 2, 2),
-(216, '2026-04-25', '2026-04-25 11:15:00', 14, 4, NULL, 'COMPLETED', 1200000.00, 1020000.00, '51K-66666', 4, 4),
-(218, '2026-04-20', '2026-04-20 14:20:00', 16, 2, NULL, 'COMPLETED', 350000.00, 350000.00, '51G-22233', 1, 1),
-(220, '2026-04-12', '2026-04-12 13:45:00', 17, 3, NULL, 'COMPLETED', 650000.00,   585000.00, '30H-99999', 3, 3),
-(221, '2026-04-05', '2026-04-05 10:00:00', 18, 2, NULL, 'COMPLETED', 350000.00, 332500.00, '60A-88888', 2, 2);
+INSERT INTO [dbo].[booking] 
+(booking_id, add_on, base_price_at_booking, booking_date, created_at, license_plate_at_booking, priority_level, status, total_price, customer_id_at_booking, promotion_id, tier_id_at_booking, vehicle_id, service_id) 
+VALUES
+(60,  NULL, 450000.00,  '2026-04-02', '2026-04-02 13:00:00', '61A-22222', 2, 'COMPLETED', 427500.00,  2,  NULL, 2, 4,  2), 
+(61,  NULL, 1250000.00, '2026-04-10', '2026-04-10 09:45:00', '51G-99999', 3, 'COMPLETED', 1125000.00, 3,  NULL, 3, 7,  4), 
+(62,  NULL, 1350000.00, '2026-04-15', '2026-04-15 16:15:00', '51K-88888', 4, 'COMPLETED', 1147500.00, 4,  NULL, 4, 8,  4), 
+(63,  NULL, 150000.00,  '2026-04-22', '2026-04-22 10:20:00', '72B-33333', 2, 'COMPLETED', 142500.00,  2,  NULL, 2, 5,  1), 
+(64,  NULL, 700000.00,  '2026-04-28', '2026-04-28 15:00:00', '51G-99999', 3, 'COMPLETED', 630000.00,  3,  NULL, 3, 7,  3),
+(210, NULL, 1200000.00, '2026-04-18', '2026-04-18 10:00:00', '51C-99988', 3, 'COMPLETED', 1080000.00, 7,  NULL, 3, 11, 4),
+(213, NULL, 350000.00,  '2026-04-10', '2026-04-10 15:30:00', '72A-44455', 2, 'COMPLETED', 332500.00,  9,  NULL, 2, 13, 2),
+(216, NULL, 1200000.00, '2026-04-25', '2026-04-25 11:15:00', '51K-66666', 4, 'COMPLETED', 1020000.00, 10, NULL, 4, 14, 4),
+(218, NULL, 350000.00,  '2026-04-20', '2026-04-20 14:20:00', '51G-22233', 1, 'COMPLETED', 350000.00,  11, NULL, 1, 16, 2),
+(220, NULL, 650000.00,  '2026-04-12', '2026-04-12 13:45:00', '30H-99999', 3, 'COMPLETED', 585000.00,  12, NULL, 3, 17, 3),
+(221, NULL, 350000.00,  '2026-04-05', '2026-04-05 10:00:00', '60A-88888', 2, 'COMPLETED', 332500.00,  13, NULL, 2, 18, 2);
 
 -- --- THÁNG 5/2026 ---
-INSERT INTO [dbo].[booking] (booking_id, booking_date, created_at, vehicle_id, service_id, promotion_id, status, base_price_at_booking, total_price, license_plate_at_booking, tier_id_at_booking, priority_level) VALUES
-(101, '2026-05-15', '2026-05-15 08:30:00', 1, 1, NULL, 'COMPLETED', 200000.00, 200000.00, '60A-12345', 1, 1), 
-(102, '2026-05-20', '2026-05-20 10:15:23', 4, 2, NULL, 'COMPLETED', 450000.00, 450000.00, '61A-22222', 2, 2),
-(222, '2026-05-18', '2026-05-18 15:30:00', 19, 1, NULL, 'COMPLETED', 150000.00, 150000.00, '51E-44433', 1, 1);
+INSERT INTO [dbo].[booking] 
+(booking_id, add_on, base_price_at_booking, booking_date, created_at, license_plate_at_booking, priority_level, status, total_price, customer_id_at_booking, promotion_id, tier_id_at_booking, vehicle_id, service_id) 
+VALUES
+(101, NULL, 200000.00,  '2026-05-15', '2026-05-15 08:30:00', '60A-12345', 1, 'COMPLETED', 200000.00,  1,  NULL, 1, 1,  1), 
+(102, NULL, 450000.00,  '2026-05-20', '2026-05-20 10:15:23', '61A-22222', 2, 'COMPLETED', 450000.00,  2,  NULL, 2, 4,  2),
+(222, NULL, 150000.00,  '2026-05-18', '2026-05-18 15:30:00', '51E-44433', 1, 'COMPLETED', 150000.00,  14, NULL, 1, 19, 1);
 
 -- --- THÁNG 6/2026 ---
-INSERT INTO [dbo].[booking] (booking_id, booking_date, created_at, vehicle_id, service_id, promotion_id, status, base_price_at_booking, total_price, license_plate_at_booking, tier_id_at_booking, priority_level) VALUES
-(103, '2026-06-05', '2026-06-05 07:45:12', 1, 1, NULL, 'COMPLETED', 200000.00, 200000.00, '60A-12345', 1, 1),
-(104, '2026-06-02', '2026-06-02 09:00:00', 4, 2, NULL, 'COMPLETED', 450000.00, 427500.00, '61A-22222', 2, 2),
-(105, '2026-06-10', '2026-06-10 14:20:55', 4, 2, NULL, 'COMPLETED', 450000.00, 427500.00, '61A-22222', 2, 2),
-(106, '2026-06-18', '2026-06-18 11:30:41', 4, 2, NULL, 'COMPLETED', 450000.00, 427500.00, '61A-22222', 2, 2),
-(107, '2026-06-25', '2026-06-25 16:05:10', 5, 1, NULL, 'COMPLETED', 150000.00, 142500.00, '72B-33333', 2, 2),
-(108, '2026-06-01', '2026-06-01 08:15:00', 7, 2, NULL, 'COMPLETED', 400000.00, 360000.00, '51G-99999', 3, 3),
-(109, '2026-06-15', '2026-06-15 13:45:22', 7, 4, NULL, 'COMPLETED', 1250000.00, 1125000.00, '51G-99999', 3, 3),
-(110, '2026-06-20', '2026-06-20 10:00:00', 7, 3, NULL, 'COMPLETED', 700000.00, 630000.00, '51G-99999', 3, 3),
-(111, '2026-06-10', '2026-06-10 09:12:30', 8, 4, NULL, 'COMPLETED', 1350000.00, 1147500.00, '51K-88888', 4, 4),
-(112, '2026-06-24', '2026-06-24 15:50:00', 8, 4, NULL, 'COMPLETED', 1350000.00, 1147500.00, '51K-88888', 4, 4),
-(113, '2026-06-12', '2026-06-12 11:22:14', 2, 1, NULL, 'CANCELLED', 200000.00, 200000.00, '51F-67890', 1, 1),
-(202, '2026-06-12', '2026-06-12 14:00:00', 9,  2, NULL, 'COMPLETED', 350000.00, 350000.00, '51A-11122', 1, 1),
-(207, '2026-06-05', '2026-06-05 08:30:00', 10, 1, NULL, 'COMPLETED', 150000.00, 142500.00, '60A-55555', 2, 2),
-(217, '2026-06-14', '2026-06-14 09:00:00', 15, 4, NULL, 'COMPLETED', 1200000.00, 1020000.00, '50H-88899', 4, 4);
+INSERT INTO [dbo].[booking] 
+(booking_id, add_on, base_price_at_booking, booking_date, created_at, license_plate_at_booking, priority_level, status, total_price, customer_id_at_booking, promotion_id, tier_id_at_booking, vehicle_id, service_id) 
+VALUES
+(103, NULL, 200000.00,  '2026-06-05', '2026-06-05 07:45:12', '60A-12345', 1, 'COMPLETED', 200000.00,  1,  NULL, 1, 1,  1),
+(104, NULL, 450000.00,  '2026-06-02', '2026-06-02 09:00:00', '61A-22222', 2, 'COMPLETED', 427500.00,  2,  NULL, 2, 4,  2),
+(105, NULL, 450000.00,  '2026-06-10', '2026-06-10 14:20:55', '61A-22222', 2, 'COMPLETED', 427500.00,  2,  NULL, 2, 4,  2),
+(106, NULL, 450000.00,  '2026-06-18', '2026-06-18 11:30:41', '61A-22222', 2, 'COMPLETED', 427500.00,  2,  NULL, 2, 4,  2),
+(107, NULL, 150000.00,  '2026-06-25', '2026-06-25 16:05:10', '72B-33333', 2, 'COMPLETED', 142500.00,  2,  NULL, 2, 5,  1),
+(108, NULL, 400000.00,  '2026-06-01', '2026-06-01 08:15:00', '51G-99999', 3, 'COMPLETED', 360000.00,  3,  NULL, 3, 7,  2),
+(109, NULL, 1250000.00, '2026-06-15', '2026-06-15 13:45:22', '51G-99999', 3, 'COMPLETED', 1125000.00, 3,  NULL, 3, 7,  4),
+(110, NULL, 700000.00,  '2026-06-20', '2026-06-20 10:00:00', '51G-99999', 3, 'COMPLETED', 630000.00,  3,  NULL, 3, 7,  3),
+(111, NULL, 1350000.00, '2026-06-10', '2026-06-10 09:12:30', '51K-88888', 4, 'COMPLETED', 1147500.00, 4,  NULL, 4, 8,  4),
+(112, NULL, 1350000.00, '2026-06-24', '2026-06-24 15:50:00', '51K-88888', 4, 'COMPLETED', 1147500.00, 4,  NULL, 4, 8,  4),
+(113, NULL, 200000.00,  '2026-06-12', '2026-06-12 11:22:14', '51F-67890', 1, 'CANCELLED', 200000.00,  1,  NULL, 1, 2,  1),
+(202, NULL, 350000.00,  '2026-06-12', '2026-06-12 14:00:00', '51A-11122', 1, 'COMPLETED', 350000.00,  5,  NULL, 1, 9,  2),
+(207, NULL, 150000.00,  '2026-06-05', '2026-06-05 08:30:00', '60A-55555', 2, 'COMPLETED', 142500.00,  6,  NULL, 2, 10, 1),
+(217, NULL, 1200000.00, '2026-06-14', '2026-06-14 09:00:00', '50H-88899', 4, 'COMPLETED', 1020000.00, 10, NULL, 4, 15, 4);
 
 -- --- THÁNG 7/2026 ---
-INSERT INTO [dbo].[booking] (booking_id, booking_date, created_at, vehicle_id, service_id, promotion_id, status, base_price_at_booking, total_price, license_plate_at_booking, tier_id_at_booking, priority_level) VALUES
-(114, '2026-07-01', '2026-07-01 07:30:00', 1, 1, NULL, 'PENDING', 200000.00, 200000.00, '60A-12345', 1, 1),
-(115, '2026-07-02', '2026-07-02 14:05:19', 4, 3, NULL, 'CONFIRMED', 750000.00, 712500.00, '61A-22222', 2, 2);
+INSERT INTO [dbo].[booking] 
+(booking_id, add_on, base_price_at_booking, booking_date, created_at, license_plate_at_booking, priority_level, status, total_price, customer_id_at_booking, promotion_id, tier_id_at_booking, vehicle_id, service_id) 
+VALUES
+(114, NULL, 200000.00,  '2026-07-01', '2026-07-01 07:30:00', '60A-12345', 1, 'PENDING',   200000.00,  1,  NULL, 1, 1,  1),
+(115, NULL, 750000.00,  '2026-07-02', '2026-07-02 14:05:19', '61A-22222', 2, 'CONFIRMED', 712500.00,  2,  NULL, 2, 4,  3);
 
 SET IDENTITY_INSERT [dbo].[booking] OFF;
 
@@ -290,18 +307,19 @@ INSERT INTO [dbo].[loyalty_point] (created_at, expiry_date, points_change, trans
 -- ============================================================
 INSERT INTO [dbo].[customer_monthly_stats] (year_month, monthly_spend, monthly_visits, customer_id) VALUES
 -- --- THÁNG 2/2026 ---
+('202602', 200000.00,  1, 1),   
 ('202602', 427500.00,  1, 2),   
 ('202602', 540000.00,  2, 3),   
-('202602', 1147500.00, 1, 4),  
+('202602', 1147500.00, 1, 4),   
 ('202602', 475000.00,  2, 6),   
 ('202602', 1080000.00, 1, 7),   
 ('202602', 1020000.00, 1, 10),  
 
 -- --- THÁNG 3/2026 ---
+('202603', 150000.00,  1, 5),   
 ('202603', 570000.00,  2, 2),   
 ('202603', 990000.00,  2, 3),   
-('202603', 1147500.00, 1, 4),  
-('202603', 150000.00,  1, 5),   
+('202603', 1147500.00, 1, 4),   
 ('202603', 950000.00,  2, 6),   
 ('202603', 585000.00,  1, 7),   
 ('202603', 150000.00,  1, 8),   
@@ -310,27 +328,44 @@ INSERT INTO [dbo].[customer_monthly_stats] (year_month, monthly_spend, monthly_v
 ('202603', 1080000.00, 1, 12),  
 
 -- --- THÁNG 4/2026 ---
+('202604', 350000.00,  1, 11),  
 ('202604', 570000.00,  2, 2),   
-('202604', 1755000.00, 2, 3),  
-('202604', 1147500.00, 1, 4),  
+('202604', 1755000.00, 2, 3),   
+('202604', 1147500.00, 1, 4),   
 ('202604', 1080000.00, 1, 7),   
 ('202604', 332500.00,  1, 9),   
 ('202604', 1020000.00, 1, 10),  
-('202604', 350000.00,  1, 11),  
 ('202604', 585000.00,  1, 12),  
 ('202604', 332500.00,  1, 13),  
 
 -- --- THÁNG 5/2026 ---
-('202605', 150000.00,  1, 14),  
+('202605', 200000.00,  1, 1),   
+('202605', 150000.00,  1, 5),   
+('202605', 450000.00,  1, 2),   
+('202605', 850000.00,  2, 6),   
+('202605', 1250000.00, 2, 3),   
+('202605', 2150000.00, 3, 7),   
+('202605', 3500000.00, 4, 4),   
+('202605', 4200000.00, 5, 10),  
 
 -- --- THÁNG 6/2026 ---
-('202606', 200000.00,  1, 1),
-('202606', 1500000.00, 5, 2),
-('202606', 5600000.00, 16, 3),
-('202606', 16200000.00, 31, 4),
-('202606', 350000.00,  1, 5),   
-('202606', 142500.00,  1, 6),   
-('202606', 1020000.00, 1, 10);
+('202606', 400000.00,  2, 1),   
+('202606', 350000.00,  1, 14),  
+('202606', 1500000.00, 3, 2),   
+('202606', 1200000.00, 2, 9),   
+('202606', 3200000.00, 4, 3),   
+('202606', 2800000.00, 3, 12),  
+('202606', 5600000.00, 6, 4),   
+('202606', 6100000.00, 7, 10),  
+
+-- --- THÁNG 7/2026 ---
+('202607', 250000.00,   1,  1),   -- [BRONZE]  
+('202607', 150000.00,   1,  8),   -- [BRONZE]  
+('202607', 1150000.00,  6,  2),   -- [SILVER]  Cus 2: Vượt mốc 1tr VNĐ & 5 visits
+('202607', 1350000.00,  7,  13),  -- [SILVER]  Cus 13: Vượt mốc 1tr VNĐ & 5 visits
+('202607', 5200000.00,  16, 7),   -- [GOLD]    Cus 7: Vượt mốc 5tr VNĐ & 15 visits
+('202607', 15500000.00, 32, 4),   -- [DIAMOND] Cus 4: Vượt mốc 15tr VNĐ & 30 visits
+('202607', 16000000.00, 35, 10);  -- [DIAMOND] Cus 10: Vượt mốc 15tr VNĐ & 30 visits
 
 
 	-- ============================================================
@@ -354,7 +389,7 @@ INSERT INTO [dbo].[customer_monthly_stats] (year_month, monthly_spend, monthly_v
 
 
 	-- ============================================================
-	-- TABLE OPERATIONS
+	-- DATA OPERATIONS
 	-- ============================================================
 	-- Lấy danh sách staff accounts
 	--SELECT * 
@@ -396,11 +431,17 @@ INSERT INTO [dbo].[customer_monthly_stats] (year_month, monthly_spend, monthly_v
 	--join [dbo].[loyalty_tier] l on c.tier_id = l.tier_id
 	--group by l.tier_name
 
-	-- ============================================================
-	-- DATABASE
-	-- ============================================================
-	--create database AutoWashPro
+	--delete from [dbo].[promotion] where promo_id = 5
 
+	--update [dbo].[vehicle]
+	--set is_active =1
+	--where vehicle_id = 22
+
+	--update [dbo].[reward_catalog]
+	--set is_active =1
+	--where reward_id =3
+
+	--select * from [dbo].[customer] c where c.customer_id = 2
 
 	-- ============================================================
 	-- AUTO UPDATE LOYALTYTIER
@@ -409,18 +450,14 @@ INSERT INTO [dbo].[customer_monthly_stats] (year_month, monthly_spend, monthly_v
 	--UPDATE [dbo].[customer] 
 	--SET tier_id = 1, last_tier_review = NULL;
 
+	--select c.full_name,c.email ,s.monthly_spend, s.monthly_visits, s.year_month
+	--from [dbo].[customer_monthly_stats] s
+	--join [dbo].[customer] c on s.customer_id = c.customer_id
+	--where s.year_month = '202607'
 
-	--delete from [dbo].[promotion] where promo_id = 5
+	--select * from [dbo].[loyalty_tier]
 
 
 
 
---update [dbo].[vehicle]
---set is_active =1
---where vehicle_id = 22
 
---update [dbo].[reward_catalog]
---set is_active =1
---where reward_id =3
-
---select * from [dbo].[booking] b where b.

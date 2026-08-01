@@ -22,14 +22,22 @@ public class BookingListResponse {
     private LocalTime endTime;
     private String status;
     private BigDecimal totalPrice;
+    private String addOn;
+    private String customerPhoneNumber;
 
 
     public BookingListResponse(Booking booking){
         this.id = booking.getBookingId();
-        this.fullName = booking.getVehicle().getCustomer().getFullName();
+        this.fullName = booking.getCustomerAtBooking().getFullName();
         this.licensePlate= booking.getLicensePlateAtBooking();
         this.serviceName=booking.getWashService().getServiceName();
         this.bookingDate=booking.getBookingDate();
+        if(booking.getAddOn()!=null){
+            this.addOn= booking.getAddOn();
+        }else {
+            this.addOn="NONE";
+        }
+        this.customerPhoneNumber=booking.getCustomerAtBooking().getPhoneNumber();
 
         this.status=booking.getStatus();
         this.totalPrice=booking.getTotalPrice();

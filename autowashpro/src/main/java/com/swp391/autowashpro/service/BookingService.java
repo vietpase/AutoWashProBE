@@ -252,6 +252,7 @@ public class BookingService {
         booking.setVehicle(vehicle);
         booking.setWashService(washService);
         booking.setPromotion(promotion);
+        booking.setCustomerAtBooking(customer);
         booking.setStatus("PENDING");
 
         // Đóng băng dữ liệu Snapshot
@@ -298,6 +299,11 @@ public class BookingService {
         response.setAddOn(finalAddOn);
         response.setTotalPointEarned(totalPointEarned);
         response.setFinalPrice(finalPrice);
+
+
+        //Snapshot Booking addOn
+        savedBooking.setAddOn(finalAddOn);
+        bookingRepository.save(savedBooking);
 
         return response;
     }
@@ -540,6 +546,7 @@ public class BookingService {
         booking.setBookingDate(today);
         booking.setVehicle(vehicle);
         booking.setWashService(washService);
+        booking.setCustomerAtBooking(customer);
         booking.setStatus("CONFIRMED");
 
         // Snapshot lịch sử hóa đơn
@@ -637,7 +644,7 @@ public class BookingService {
 
     @Transactional
     public List<BookingListResponse> getWashHistory(Integer customerId) {
-        List<Booking> bookings = bookingRepository.findByVehicleCustomerCustomerId(customerId);
+        List<Booking> bookings = bookingRepository.findByCustomerAtBookingCustomerId(customerId);
         return bookings.stream()
                 .map(BookingListResponse::new)
                 .toList();
