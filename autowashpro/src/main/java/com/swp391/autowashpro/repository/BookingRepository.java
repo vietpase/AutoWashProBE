@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
-    List<Booking> findByVehicleCustomerCustomerId(Integer customerId);
+    List<Booking> findByCustomerAtBookingCustomerId(Integer customerId);
 
     @Query("SELECT COUNT(b) FROM Booking b")
     long countTotalBooking();

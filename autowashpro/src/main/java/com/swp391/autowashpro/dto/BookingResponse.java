@@ -22,8 +22,7 @@ public class BookingResponse {
     private String licensePlate;      // Biển số xe
     private String serviceName;       // Tên dịch vụ rửa
     private String tierNameAtBooking; // Hạng của khách lúc đặt lịch
-
-    // --- HAI TRƯỜNG BỔ SUNG CHO FRONTEND DỄ HIỂN THỊ ---
+    private String customerNameAtBooking;
     private String startSlotName;     // Tên ca bắt đầu (Ví dụ: Ca Sáng 1)
     private LocalTime startTime;      // Giờ bắt đầu rửa thực tế (Ví dụ: 08:00:00)
 
@@ -44,6 +43,9 @@ public class BookingResponse {
         }
         if (booking.getTierAtBooking() != null) {
             this.tierNameAtBooking = booking.getTierAtBooking().getTierName();
+        }
+        if(booking.getCustomerAtBooking()!=null){
+            this.customerNameAtBooking=booking.getCustomerAtBooking().getFullName();
         }
 
         // --- Tự động tìm ca bắt đầu từ bảng trung gian ---

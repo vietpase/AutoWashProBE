@@ -42,7 +42,7 @@ public class RewardRedemption {
     @JoinColumn(name = "reward_id", nullable = false)
     private RewardCatalog rewardCatalog;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id") // Cho phép NULL khi chưa áp dụng vào đơn đặt lịch
     private Booking booking;
 }

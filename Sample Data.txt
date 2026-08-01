@@ -1,0 +1,26 @@
+WashService:
+
+Dọn dẹp bụi bẩn và dầu mỡ
+Dọn dẹp bụi bẩn và dầu mỡ bám trong khoang động cơ bằng công nghệ hơi nước nóng, dưỡng phục hồi chi tiết nhựa, cao su bảo vệ hệ thống điện.
+
+Tháo ghế, giặt sạch trần, sàn, toàn bộ ghế da/nỉ bằng máy phun hút áp lực. Dưỡng bề mặt taplo, tapi và diệt khuẩn toàn bộ xe.
+
+Tẩy sạch các vết ố mốc, váng mưa trên kính lái và kính sườn, vệ sinh luồng gió điều hòa bằng dung dịch chuyên dụng.
+
+Bao gồm rửa vỏ chống xước, hút bụi nội thất căn bản, lau kính và xịt bóng dưỡng lốp xe.
+
+
+Promotion:
+
+Ưu đãi giải nhiệt mùa hè, giảm thẳng 30,000đ.
+
+Tặng gấu bông BayMax
+
+Tặng thay nhớt xe miễn phí
+
+
+reward_catalog:
+
+Tặng Sticker
+Ưu đãi hạng giảm 50,000đ.
+

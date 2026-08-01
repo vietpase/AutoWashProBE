@@ -38,7 +38,7 @@
         @JoinColumn(name = "customer_id", nullable = false)
         private Customer customer;
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @OneToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "wash_id")
         private WashHistory washHistory;
     }
